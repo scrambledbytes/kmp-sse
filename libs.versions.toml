@@ -1,0 +1,38 @@
+#
+#                                      Versions
+#################################################################################################
+[versions]
+# shared
+jvm-target = "17"
+kotlin = "1.8.10"
+kotlin-api = "1.8"
+kotlinx-coroutines = "1.6.4"
+
+# iOS
+# JS
+
+#
+#                                   Libraries
+#################################################################################################
+[libraries]
+# shared
+kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+junit = "junit:junit:4.13.2"
+
+#                                       Bundles
+################################################################################################
+[bundles]
+
+#
+#                                       Plugins
+################################################################################################
+[plugins]
+#   build
+# updating version catalog https://github.com/littlerobots/version-catalog-update-plugin
+manes = "com.github.ben-manes.versions:0.44.0"
+vcu = "nl.littlerobots.version-catalog-update:0.7.0"
+
+# shared
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+
