@@ -7,7 +7,10 @@ import kotlinx.coroutines.flow.*
 // failed event stream should not be re-connected
 class SseEventStream(
     private val onClose: () -> Unit, // closes the event stream
-    private val onExecute: suspend (SseEventStream) -> Unit, // executes the wrapped request
+    private val onExecute: suspend (
+            (State) -> Unit,
+            suspend (String) -> Unit,
+    ) -> Unit, // executes the wrapped request
 ) {
     private val _events: MutableSharedFlow<String> = MutableSharedFlow(
         replay = 0,
@@ -20,12 +23,11 @@ class SseEventStream(
         get() = _events
 
 
-    fun onState(newState: State) {
-        println("Updating state")
+    private fun onState(newState: State) {
         state.value = newState
     }
 
-    suspend fun onLine(line: String) {
+    private suspend fun onLine(line: String) {
         _events.emit(line)
     }
 
@@ -42,10 +44,7 @@ class SseEventStream(
 
             return when {
                 safeState == null -> false
-                safeState.contentType != "text/event-stream" -> {
-                    println("Wrong content type: '${safeState.contentType}' ")
-                    true
-                }
+                safeState.contentType != "text/event-stream" -> true
                 safeState.isAborted -> true
                 safeState.status != 200 -> true
                 else -> false
@@ -57,7 +56,7 @@ class SseEventStream(
     }
 
     suspend fun connect() {
-        onExecute(this)
+        onExecute(::onState, ::onLine)
     }
 
     fun fireError() {

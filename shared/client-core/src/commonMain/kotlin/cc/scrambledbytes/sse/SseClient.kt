@@ -57,7 +57,7 @@ class SseClient(
     val withCredentials: Boolean, // TODO
     var reconnectionTime: Duration = 10.seconds,
     val provider: SseEventStream.Provider,
-    val contextProvider: () -> CoroutineContext
+    val context: CoroutineContext
 ) {
 
     var lastEventId: String = "" //  This must initially be the empty string.
@@ -75,7 +75,7 @@ class SseClient(
         )
 
     private val supervisor: Job = SupervisorJob()
-    private val scope: CoroutineScope = CoroutineScope(context = contextProvider() + supervisor)
+    private val scope: CoroutineScope = CoroutineScope(context = context + supervisor)
     private var collectJob: Job? = null
 
     fun connect() {
@@ -113,12 +113,10 @@ class SseClient(
             newSource.state
                 .filterNotNull()
                 .collectLatest {
-                    println("Got state: $it ${newSource.isFailed} ${newSource.isRetry} ")
                     when {
                         newSource.isFailed -> handleFail(newSource)
                         newSource.isRetry -> handleRetryConnection(newSource)
                         else -> {
-                            println("Connecting listener")
                             _readyState.value = ReadyState.OPEN
                             newSource.events
                                 .collect { line ->
@@ -145,7 +143,6 @@ class SseClient(
      * the EventSource object. Once the user agent has failed the connection, it does not attempt to reconnect.
      */
     private fun handleFail(newSource: SseEventStream) {
-        println("Handle fail")
         newSource.fireError()
         close()
     }
@@ -153,7 +150,6 @@ class SseClient(
     private suspend fun handleRetryConnection(
         eventStream: SseEventStream
     ) {
-        println("handleRetryConnection")
         if (_readyState.value == ReadyState.CLOSED)
             return
 
@@ -181,7 +177,6 @@ class SseClient(
      * https://html.spec.whatwg.org/multipage/server-sent-events.html#event-stream-interpretation
      */
     private suspend fun processLine(line: String) {
-        println("Processing: $line")
         when {
             line.isBlank() -> dispatchEvent()
             line.startsWith(":") -> Unit // Ignore the line.
@@ -198,7 +193,6 @@ class SseClient(
     }
 
     private fun processField(name: String, fieldValue: String) {
-        println("processField: name=$name, value=$fieldValue")
         when (name) {
             "event" -> handleEvent(fieldValue)
             "data" -> handleData(fieldValue)
@@ -212,7 +206,6 @@ class SseClient(
      * Set the event type buffer to field value.
      */
     private fun handleEvent(fieldValue: String) {
-        println("handleEvent: $fieldValue")
         bufferEventType = fieldValue
     }
 
@@ -249,13 +242,11 @@ class SseClient(
     }
 
     private suspend fun dispatchEvent() {
-        println("Dispatch $bufferEventType $bufferData")
         // 1 Set the last event ID string of the event source to the value of the last event ID buffer. The buffer does not get reset, so the last event ID string of the event source remains set to this value until the next time it is set by the server.
         lastEventId = bufferLastEventId
 
         // 2 If the data buffer is an empty string, set the data buffer and the event type buffer to the empty string and return.
         if (bufferData.isBlank()) {
-            println("No buffer")
             bufferData = ""
             bufferEventType = ""
             return
@@ -282,7 +273,6 @@ class SseClient(
 
         // 8 Queue a task which, if the readyState attribute is set to a value other than CLOSED, dispatches the newly created event at the EventSource object.
         if (_readyState.value != ReadyState.CLOSED) {
-            println("Emitting message: $message")
             _messages.emit(message)
         } else {
             println("Omit message: $message")

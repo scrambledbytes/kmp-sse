@@ -37,11 +37,10 @@ class KtorSseEventStreamProvider(
                 println("Closing")
                 job?.cancel()
             },
-            onExecute = { stream ->
+            onExecute = { onState, onLine ->
                 statement.execute { response ->
-                    println("Got response: ${response.contentType()}")
-                    stream.onState(
-                        newState = SseEventStream.State(
+                    onState(
+                        SseEventStream.State(
                             status = response.status.value,
                             contentType = getContentType(response),
                             isAborted = false,
@@ -60,7 +59,7 @@ class KtorSseEventStreamProvider(
                         newBuffer?.let {
                             val lines = it.split("\n")
                             for (line in lines) {
-                                stream.onLine(line)
+                                onLine(line)
                             }
                         }
                     }
