@@ -53,19 +53,33 @@ private const val LF = '\u000A' // U+000A LINE FEED (LF)
 //https://developer.mozilla.org/en-US/docs/Web/API/EventSource
 // https://html.spec.whatwg.org/multipage/server-sent-events.html#server-sent-events
 class SseClient(
-    val url: String,
-    val withCredentials: Boolean, // TODO
-    var reconnectionTime: Duration = 10.seconds,
-    val provider: SseEventStream.Provider,
-    val context: CoroutineContext
+    private val url: String,
+    private val withCredentials: Boolean = false, // TODO
+    private var reconnectionTime: Duration = 10.seconds,
+    private val provider: SseEventStream.Provider,
+    private val context: CoroutineContext = Job()
 ) {
+    fun connect() {
+        scope.launch {
+            tryConnect()
+        }
+    }
 
-    var lastEventId: String = "" //  This must initially be the empty string.
+    fun disconnect() {
+        close()
+    }
 
-    // TODO extract buffer
-    var bufferEventType: String = "" //
-    var bufferLastEventId: String = "" // id
-    var bufferData: String = "" // data buffer
+    val events: Flow<SseEvent>
+        get() = _messages
+
+
+    private val _readyState = MutableStateFlow(ReadyState.CONNECTING)
+    val readyState: Flow<ReadyState>
+        get() = _readyState
+
+
+    private var lastEventId: String = "" //  This must initially be the empty string.
+    private var buffer = SseBuffer()
 
     private val _messages =
         MutableSharedFlow<SseEvent>(
@@ -78,15 +92,6 @@ class SseClient(
     private val scope: CoroutineScope = CoroutineScope(context = context + supervisor)
     private var collectJob: Job? = null
 
-    fun connect() {
-        scope.launch {
-            tryConnect()
-        }
-    }
-
-    fun disconnect() {
-        supervisor.cancelChildren()
-    }
 
     private suspend fun tryConnect() {
         if (_readyState.value == ReadyState.CLOSED)
@@ -166,12 +171,6 @@ class SseClient(
         tryConnect()
     }
 
-    val events: Flow<SseEvent>
-        get() = _messages
-
-    private val _readyState = MutableStateFlow(ReadyState.CONNECTING)
-    val readyState: Flow<ReadyState>
-        get() = _readyState
 
     /**
      * https://html.spec.whatwg.org/multipage/server-sent-events.html#event-stream-interpretation
@@ -187,7 +186,6 @@ class SseClient(
                     value.removePrefix(" "), //If value starts with a U+0020 SPACE character, remove it from value.
                 )
             }
-
             else -> processField(name = line, fieldValue = "")
         }
     }
@@ -206,14 +204,15 @@ class SseClient(
      * Set the event type buffer to field value.
      */
     private fun handleEvent(fieldValue: String) {
-        bufferEventType = fieldValue
+        buffer = buffer.copy(eventType = fieldValue)
     }
 
     /**
      * Append the field value to the data buffer, then append a single U+000A LINE FEED (LF) character to the data buffer.
      */
     private fun handleData(fieldValue: String) {
-        bufferData = bufferData + fieldValue + LF
+        val newData = buffer.data + fieldValue + LF
+        buffer = buffer.copy(data = newData)
     }
 
     /*
@@ -225,7 +224,7 @@ class SseClient(
         if (Character.MIN_VALUE in fieldValue)
             return
 
-        bufferLastEventId = fieldValue
+        buffer = buffer.copy(lastEventId = fieldValue)
     }
 
     /**
@@ -243,33 +242,26 @@ class SseClient(
 
     private suspend fun dispatchEvent() {
         // 1 Set the last event ID string of the event source to the value of the last event ID buffer. The buffer does not get reset, so the last event ID string of the event source remains set to this value until the next time it is set by the server.
-        lastEventId = bufferLastEventId
+        lastEventId = buffer.lastEventId
 
         // 2 If the data buffer is an empty string, set the data buffer and the event type buffer to the empty string and return.
-        if (bufferData.isBlank()) {
-            bufferData = ""
-            bufferEventType = ""
+        if (buffer.isEmpty) {
+            resetBuffer()
             return
         }
 
         // 3 If the data buffer's last character is a U+000A LINE FEED (LF) character, then remove the last character from the data buffer.
-        bufferData = bufferData.removeSuffix(LF.toString())
+
 
         // 4 Let event be the result of creating an event using MessageEvent, in the relevant realm of the EventSource object.
 
         // 5 Initialize event's type attribute to message, its data attribute to data, its origin attribute to the serialization of the origin of the event stream's final URL (i.e., the URL after redirects), and its lastEventId attribute to the last event ID string of the event source.
 
         // 6 If the event type buffer has a value other than the empty string, change the type of the newly created event to equal the value of the event type buffer.
-        val message = SseEvent(
-            data = bufferData,
-            type = bufferEventType,
-            lastEventId = lastEventId,
-            origin = url, // TODO
-        )
+        val message = buffer.toSseEvent()
 
         // 7 Set the data buffer and the event type buffer to the empty string.
-        bufferData = ""
-        bufferEventType = ""
+        resetBuffer()
 
         // 8 Queue a task which, if the readyState attribute is set to a value other than CLOSED, dispatches the newly created event at the EventSource object.
         if (_readyState.value != ReadyState.CLOSED) {
@@ -278,9 +270,13 @@ class SseClient(
             println("Omit message: $message")
         }
     }
+    private fun resetBuffer() {
+        buffer = SseBuffer()
+    }
 
-    fun close() {
-        collectJob?.cancel()
+    private fun close() {
+        resetBuffer()
+        supervisor.cancelChildren()
         _readyState.value = ReadyState.CLOSED
     }
 

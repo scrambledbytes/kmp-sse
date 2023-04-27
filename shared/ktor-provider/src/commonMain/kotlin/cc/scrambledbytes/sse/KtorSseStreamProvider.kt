@@ -8,7 +8,6 @@ import io.ktor.http.*
 import io.ktor.util.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.*
-import java.nio.charset.Charset
 
 class KtorSseEventStreamProvider(
     private val client: HttpClient //TODO more generic ?
