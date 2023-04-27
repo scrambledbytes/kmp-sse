@@ -16,3 +16,7 @@ dependencyResolutionManagement {
 }
 
 include(":shared:client-core")
+include(":shared:ktor-provider")
+
+include(":example:server")
+include(":example:client")

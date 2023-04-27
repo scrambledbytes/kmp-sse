@@ -2,9 +2,8 @@ package cc.scrambledbytes.sse
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.*
+import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -57,8 +56,8 @@ class SseClient(
     val url: String,
     val withCredentials: Boolean, // TODO
     var reconnectionTime: Duration = 10.seconds,
-    val isConnected: Flow<Boolean>? = null, // TODO
-    val builderProvider: () -> SseEventStream.Provider,
+    val provider: SseEventStream.Provider,
+    val contextProvider: () -> CoroutineContext
 ) {
 
     var lastEventId: String = "" //  This must initially be the empty string.
@@ -68,7 +67,6 @@ class SseClient(
     var bufferLastEventId: String = "" // id
     var bufferData: String = "" // data buffer
 
-
     private val _messages =
         MutableSharedFlow<SseEvent>(
             replay = 0,
@@ -76,10 +74,21 @@ class SseClient(
             onBufferOverflow = BufferOverflow.SUSPEND
         )
 
-    private val scope = CoroutineScope(MainScope().coroutineContext) // TODO scope provider
+    private val supervisor: Job = SupervisorJob()
+    private val scope: CoroutineScope = CoroutineScope(context = contextProvider() + supervisor)
     private var collectJob: Job? = null
 
-    private fun tryConnect() {
+    fun connect() {
+        scope.launch {
+            tryConnect()
+        }
+    }
+
+    fun disconnect() {
+        supervisor.cancelChildren()
+    }
+
+    private suspend fun tryConnect() {
         if (_readyState.value == ReadyState.CLOSED)
             return
 
@@ -88,34 +97,46 @@ class SseClient(
         var source: SseEventStream? = null
 
         collectJob = scope.launch {
+            println("Collect job started")
             // TODO mutex
-
             // TODO refactoring
-            val builder = builderProvider()
-            builder.setUrl(url)
-            builder.setLastEventId(lastEventId)
-            builder.setNoCacheControl()
-            builder.setOtherInitiator()
-            val newSource = builder.open()
-
+            val newSource = provider.create(url, lastEventId)
+            println("Source created")
             source = newSource
 
-            when {
-                newSource.isFailed -> handleFail(newSource)
-                newSource.isRetry -> handleRetryConnection(newSource)
-                else -> {
-                    _readyState.value = ReadyState.OPEN
-                    newSource.body
-                        .collect { line ->
-                            processLine(line)
-                        }
-                }
+            launch {
+                newSource.connect()
             }
+
+            println("Connecting connect")
+
+            newSource.state
+                .filterNotNull()
+                .collectLatest {
+                    println("Got state: $it ${newSource.isFailed} ${newSource.isRetry} ")
+                    when {
+                        newSource.isFailed -> handleFail(newSource)
+                        newSource.isRetry -> handleRetryConnection(newSource)
+                        else -> {
+                            println("Connecting listener")
+                            _readyState.value = ReadyState.OPEN
+                            newSource.events
+                                .collect { line ->
+                                    processLine(line)
+                                }
+                        }
+                    }
+                }
         }
 
         collectJob?.invokeOnCompletion {
+            println("Collect job finished")
             source?.close()
         }
+
+        collectJob?.join()
+
+        println("Finished")
     }
 
     /**
@@ -124,6 +145,7 @@ class SseClient(
      * the EventSource object. Once the user agent has failed the connection, it does not attempt to reconnect.
      */
     private fun handleFail(newSource: SseEventStream) {
+        println("Handle fail")
         newSource.fireError()
         close()
     }
@@ -131,6 +153,7 @@ class SseClient(
     private suspend fun handleRetryConnection(
         eventStream: SseEventStream
     ) {
+        println("handleRetryConnection")
         if (_readyState.value == ReadyState.CLOSED)
             return
 
@@ -158,6 +181,7 @@ class SseClient(
      * https://html.spec.whatwg.org/multipage/server-sent-events.html#event-stream-interpretation
      */
     private suspend fun processLine(line: String) {
+        println("Processing: $line")
         when {
             line.isBlank() -> dispatchEvent()
             line.startsWith(":") -> Unit // Ignore the line.
@@ -174,6 +198,7 @@ class SseClient(
     }
 
     private fun processField(name: String, fieldValue: String) {
+        println("processField: name=$name, value=$fieldValue")
         when (name) {
             "event" -> handleEvent(fieldValue)
             "data" -> handleData(fieldValue)
@@ -187,6 +212,7 @@ class SseClient(
      * Set the event type buffer to field value.
      */
     private fun handleEvent(fieldValue: String) {
+        println("handleEvent: $fieldValue")
         bufferEventType = fieldValue
     }
 
@@ -223,11 +249,13 @@ class SseClient(
     }
 
     private suspend fun dispatchEvent() {
+        println("Dispatch $bufferEventType $bufferData")
         // 1 Set the last event ID string of the event source to the value of the last event ID buffer. The buffer does not get reset, so the last event ID string of the event source remains set to this value until the next time it is set by the server.
         lastEventId = bufferLastEventId
 
         // 2 If the data buffer is an empty string, set the data buffer and the event type buffer to the empty string and return.
         if (bufferData.isBlank()) {
+            println("No buffer")
             bufferData = ""
             bufferEventType = ""
             return
@@ -254,7 +282,10 @@ class SseClient(
 
         // 8 Queue a task which, if the readyState attribute is set to a value other than CLOSED, dispatches the newly created event at the EventSource object.
         if (_readyState.value != ReadyState.CLOSED) {
+            println("Emitting message: $message")
             _messages.emit(message)
+        } else {
+            println("Omit message: $message")
         }
     }
 

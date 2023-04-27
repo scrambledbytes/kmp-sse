@@ -20,8 +20,12 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/buildSrc" />
+            <option value="$PROJECT_DIR$/example" />
+            <option value="$PROJECT_DIR$/example/client" />
+            <option value="$PROJECT_DIR$/example/server" />
             <option value="$PROJECT_DIR$/shared" />
             <option value="$PROJECT_DIR$/shared/client-core" />
+            <option value="$PROJECT_DIR$/shared/ktor-provider" />
           </set>
         </option>
       </GradleProjectSettings>

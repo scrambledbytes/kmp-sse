@@ -1,57 +1,81 @@
 package cc.scrambledbytes.sse
 
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.*
 
 // closed event streams should be re-connected
 // failed event stream should not be re-connected
 class SseEventStream(
-    private val status: Int, // 200 -> OK, 301/307 -> Redirect,
-    private val contentType: String, // needs to be 'text/event-stream' -> fail connection
-    private val isAborted: Boolean, // aborted error or reconnection is futile
-    private val isError: Boolean,
     private val onClose: () -> Unit, // closes the event stream
-    private val onError: (String) -> Unit, // callback when an error happens
-    val body: Flow<String>, // UTF8 encoded flow
+    private val onExecute: suspend (SseEventStream) -> Unit, // executes the wrapped request
 ) {
-    val isRetry: Boolean by lazy {
-        isError && !isFailed
+    private val _events: MutableSharedFlow<String> = MutableSharedFlow(
+        replay = 0,
+        extraBufferCapacity = 10,
+        onBufferOverflow = BufferOverflow.SUSPEND,
+    )
+
+    val state = MutableStateFlow<State?>(null)
+    val events: Flow<String>
+        get() = _events
+
+
+    fun onState(newState: State) {
+        println("Updating state")
+        state.value = newState
     }
 
-    val isFailed: Boolean by lazy { // -> fail the connection
-        when {
-            contentType != "text/event-stream" -> false
-            isAborted -> false
-            status != 200 -> false
-            else -> true
-        }
+    suspend fun onLine(line: String) {
+        _events.emit(line)
     }
+
+    val isRetry: Boolean
+        get() {
+            val safeState = state.value ?: return false
+
+            return safeState.isError && !isFailed
+        }
+
+    val isFailed: Boolean
+        get() { // -> fail the connection
+            val safeState = state.value
+
+            return when {
+                safeState == null -> false
+                safeState.contentType != "text/event-stream" -> {
+                    println("Wrong content type: '${safeState.contentType}' ")
+                    true
+                }
+                safeState.isAborted -> true
+                safeState.status != 200 -> true
+                else -> false
+            }
+        }
 
     fun close() {
         onClose()
     }
 
-    fun fireError() {
-        onError("error=$isError, aborted=$isAborted,  status=$status, type=$contentType")
+    suspend fun connect() {
+        onExecute(this)
     }
 
-    interface Provider {
+    fun fireError() {
+        //TODO onError("state: ${state.value}")
+    }
 
-        fun setOtherInitiator()
+    data class State(
+        val status: Int,
+        val contentType: String,
+        val isAborted: Boolean,
+        val isError: Boolean
+    )
 
-        // Set request's cache mode to "no-store".  "Cache-Control", "no-cache"
-        fun setNoCacheControl()
-
-        // Accept: text/event-stream
-        fun setAcceptTextStream()
-
-        fun setUrl(url: String): Provider // TODO url parsing
-
-        // Last-Event-Id:
-        fun setLastEventId(lastEventId:String)
-
+    // TODO document
+    fun interface Provider {
         /**
          * Let lastEventId be the EventSource object's last event ID string, encoded as UTF-8. Set (`Last-Event-ID`, lastEventIDValue) in request's header list.
          */
-        suspend fun open(): SseEventStream
+        suspend fun create(url: String, lastEventId: String?): SseEventStream
     }
 }

@@ -8,6 +8,7 @@ subprojects {
 plugins {
     alias(libs.plugins.manes)
     alias(libs.plugins.vcu)
+    alias(libs.plugins.ktor.io)
 }
 
 tasks.wrapper {

@@ -15,7 +15,9 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(project(":shared:client-core"))
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.ktor.client.core)
             }
         }
         val commonTest by getting {
@@ -24,6 +26,9 @@ kotlin {
             }
         }
         val jvmMain by getting {
+            dependencies {
+                api(libs.ktor.client.apache5)
+            }
         }
         val jvmTest by getting
     }
