@@ -1,5 +1,6 @@
 package cc.scrambledbytes.sse
 
+import cc.scrambledbytes.sse.client.processLine
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
@@ -175,22 +176,7 @@ class SseClient(
     /**
      * https://html.spec.whatwg.org/multipage/server-sent-events.html#event-stream-interpretation
      */
-    private suspend fun processLine(line: String) {
-        when {
-            line.isBlank() -> dispatchEvent()
-            line.startsWith(":") -> Unit // Ignore the line.
-            ":" in line -> {
-                val (name, value) = line.split(":")
-                processField(
-                    name = name,
-                    value.removePrefix(" "), //If value starts with a U+0020 SPACE character, remove it from value.
-                )
-            }
-            else -> processField(name = line, fieldValue = "")
-        }
-    }
-
-    private fun processField(name: String, fieldValue: String) {
+    internal fun processField(name: String, fieldValue: String) {
         when (name) {
             "event" -> handleEvent(fieldValue)
             "data" -> handleData(fieldValue)
@@ -240,7 +226,7 @@ class SseClient(
         reconnectionTime = newReconnectionTime.milliseconds
     }
 
-    private suspend fun dispatchEvent() {
+    internal suspend fun dispatchEvent() {
         // 1 Set the last event ID string of the event source to the value of the last event ID buffer. The buffer does not get reset, so the last event ID string of the event source remains set to this value until the next time it is set by the server.
         lastEventId = buffer.lastEventId
 
