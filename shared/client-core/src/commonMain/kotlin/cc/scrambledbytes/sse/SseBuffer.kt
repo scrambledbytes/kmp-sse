@@ -1,7 +1,5 @@
 package cc.scrambledbytes.sse
 
-import com.sun.tools.javac.util.LayoutCharacters.LF
-
 internal data class SseBuffer(
     val eventType: String = "",
     val lastEventId: String = "", // id

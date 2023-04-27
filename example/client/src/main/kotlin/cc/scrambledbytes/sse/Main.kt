@@ -14,8 +14,6 @@ suspend fun main() {
 
     client.connect()
 
-    client.disconnect()
-
     client.events.collect {
         println("Got event: $it")
     }
