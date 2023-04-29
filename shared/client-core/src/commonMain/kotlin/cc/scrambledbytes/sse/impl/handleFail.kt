@@ -10,7 +10,7 @@ import cc.scrambledbytes.sse.SseLineStream
  * the EventSource object. Once the user agent has failed the connection, it does not attempt to reconnect.
  */
 internal suspend fun SseEventSourceImpl.handleFail(
-    state: SseLineStream.State
+    state: SseLineStream.ConnectionState
 ) {
     _state.value = _state.value.copy(
         ready = CLOSED,

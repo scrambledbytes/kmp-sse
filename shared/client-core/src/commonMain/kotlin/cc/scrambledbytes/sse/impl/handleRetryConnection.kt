@@ -7,7 +7,7 @@ import cc.scrambledbytes.sse.SseLineStream
 import cc.scrambledbytes.sse.util.debugTrace
 
 internal suspend fun SseEventSourceImpl.handleRetryConnection(
-    streamState: SseLineStream.State
+    streamState: SseLineStream.ConnectionState
 ) {
     _state.value = _state.value.copy(
         ready = CLOSED,
