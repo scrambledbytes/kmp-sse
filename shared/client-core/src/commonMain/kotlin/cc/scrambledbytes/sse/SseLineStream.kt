@@ -9,12 +9,7 @@ import kotlinx.coroutines.sync.withLock
 // failed event stream should not be re-connected
 
 
-@JvmInline
-value class SseLine(
-    val value:String
-) {
-    // TODO validate UTF 8 encoding
-}
+
 
 /**
  * Wrapper at the HttpRequest that connects to the text stream
