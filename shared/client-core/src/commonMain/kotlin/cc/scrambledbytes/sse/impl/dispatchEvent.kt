@@ -2,6 +2,7 @@ package cc.scrambledbytes.sse.impl
 
 import cc.scrambledbytes.sse.ReadyState.CLOSED
 import cc.scrambledbytes.sse.SseEventSourceImpl
+import cc.scrambledbytes.sse.util.debugTrace
 
 internal suspend fun SseEventSourceImpl.dispatchEvent() {
     // 1 Set the last event ID string of the event source to the value of the last event ID buffer. The buffer does not get reset, so the last event ID string of the event source remains set to this value until the next time it is set by the server.
@@ -30,6 +31,6 @@ internal suspend fun SseEventSourceImpl.dispatchEvent() {
     if (readyState != CLOSED) {
         _messages.emit(message)
     } else {
-        println("Omit message: $message")
+        debugTrace("Omit message: $message")
     }
 }

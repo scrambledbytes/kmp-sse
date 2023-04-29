@@ -2,6 +2,7 @@ package cc.scrambledbytes.sse.impl
 
 import cc.scrambledbytes.sse.LF
 import cc.scrambledbytes.sse.SseEventSourceImpl
+import java.lang.Character.MIN_VALUE
 import kotlin.time.Duration.Companion.milliseconds
 
 internal fun SseEventSourceImpl.processField(
@@ -42,7 +43,7 @@ internal fun SseEventSourceImpl.handleData(
 internal fun SseEventSourceImpl.handleId(
     fieldValue: String
 ) {
-    if (Character.MIN_VALUE in fieldValue)
+    if (MIN_VALUE in fieldValue)
         return
 
     buffer = buffer.copy(lastEventId = fieldValue)

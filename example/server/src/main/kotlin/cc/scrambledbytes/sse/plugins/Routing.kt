@@ -1,5 +1,6 @@
 package cc.scrambledbytes.sse.plugins
 
+import cc.scrambledbytes.sse.debugTrace
 import io.ktor.http.*
 import io.ktor.server.routing.*
 import io.ktor.server.response.*
@@ -12,13 +13,13 @@ fun Application.configureRouting() {
             call.response.cacheControl(CacheControl.NoCache(null))
 
             try {
-                println("Responding")
+                debugTrace("Responding")
                 call.respondTextWriter(contentType = ContentType.Text.EventStream) {
                     while(true) {
                         delay(3_000)
 
                         val event = RandomSseEvent()
-                        println("Writing $event")
+                        debugTrace("Writing $event")
                         write("event: ${event.type}\n")
                         write("data: ${event.data}\n") // TODO multiline data
                         write("")
@@ -27,12 +28,15 @@ fun Application.configureRouting() {
                 }
             }
             catch (e:Exception) {
-                println("Channel closed: ${e.message}")
+                debugTrace("Channel closed: ${e.message}")
             }
             finally {
-                println("Shutting down channel")
+                debugTrace("Shutting down channel")
             }
+        }
 
+        get("/sse-401") {
+            call.respond(HttpStatusCode.Unauthorized)
         }
     }
 }

@@ -8,20 +8,26 @@ import kotlinx.coroutines.flow.*
 
 
 /**
- * Transforms the text stream
+ * Wrapper at the HttpRequest that connects to the text stream
+ *
+ * The HttpRequest depends on the platform and engine used.
  */
 class SseEventStream(
-    private val onClose: () -> Unit, // closes the event stream
+    private val onClose: () -> Unit, // cleanup hook
+    // executes the wrapped request
     private val onExecute: suspend (
         onState: (State) -> Unit,
         onLine: suspend (String) -> Unit,
-    ) -> Unit, // executes the wrapped request
+    ) -> Unit,
 ) {
     private val _events: MutableSharedFlow<String> = MutableSharedFlow(
         replay = 0,
         extraBufferCapacity = 10,
         onBufferOverflow = BufferOverflow.SUSPEND,
     )
+
+    internal val statusCode:Int
+        get() = state.value?.statusCode ?: -1
 
     internal val state = MutableStateFlow<State?>(null)
     val events: Flow<String>
@@ -32,29 +38,9 @@ class SseEventStream(
     }
 
     private suspend fun onLine(line: String) {
+        requireNotNull(state.value) {"No state, `onState` called before `onLine`?"}
         _events.emit(line)
     }
-
-    val isRetry: Boolean
-        get() {
-            val safeState = state.value ?: return false
-
-            return safeState.isError && !isFailed
-        }
-
-    internal val isFailed: Boolean
-        get() { // -> fail the connection
-            val safeState = state.value
-
-            return when {
-                safeState == null -> false
-                safeState.contentType != "text/event-stream" -> true
-                safeState.isAborted -> true
-                safeState.status != 200 -> true
-                else -> false
-            }
-        }
-
     fun close() {
         onClose()
     }
@@ -64,13 +50,26 @@ class SseEventStream(
     }
 
     data class State(
-        val status: Int,
+        val statusCode: Int,
         val contentType: String,
         val isAborted: Boolean,
         val error: Throwable? = null,
     ) {
         val isError: Boolean by lazy {
             error != null
+        }
+
+        val isRetry:Boolean by lazy {
+            isError && !isFailed
+        }
+
+        val isFailed:Boolean by lazy {
+            when {
+                contentType != "text/event-stream" -> true
+                isAborted -> true
+                statusCode != 200 -> true
+                else -> false
+            }
         }
     }
 

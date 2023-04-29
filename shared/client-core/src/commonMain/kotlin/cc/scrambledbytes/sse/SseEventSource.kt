@@ -82,7 +82,7 @@ interface SseEventSource {
     data class State(
         val ready: ReadyState = CONNECTING,
         val isFailed: Boolean = false,
-        val status: Int = -1,
+        val statusCode: Int = -1,
     )
 }
 

@@ -1,14 +1,15 @@
 package cc.scrambledbytes.sse
 
+import cc.scrambledbytes.sse.util.debugTrace
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.http.content.*
 import io.ktor.util.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.*
+
 
 class KtorSseEventStreamProvider(
     private val client: HttpClient //TODO more generic ?
@@ -19,7 +20,7 @@ class KtorSseEventStreamProvider(
         lastEventId: String?
     ): SseEventStream {
         // TODO parse url
-        println("Connecting: $url, $lastEventId")
+        debugTrace("Connecting: $url, $lastEventId")
 
         var job: Job? = null
 
@@ -37,14 +38,15 @@ class KtorSseEventStreamProvider(
 
         return SseEventStream(
             onClose = {
-                println("Closing")
+                debugTrace("Closing SSE event stream")
                 job?.cancel()
             },
             onExecute = { onState, onLine ->
                 statement.execute { response ->
+                    debugTrace("Got response: $response")
                     onState(
                         SseEventStream.State(
-                            status = response.status.value,
+                            statusCode = response.status.value,
                             contentType = getContentType(response),
                             isAborted = response.status == HttpStatusCode.NoContent,
                             error = null,
