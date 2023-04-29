@@ -1,8 +1,8 @@
 package cc.scrambledbytes.sse.client
 
-import cc.scrambledbytes.sse.SseClient
+import cc.scrambledbytes.sse.SseEventSource
 
-internal suspend fun SseClient.dispatchEvent() {
+internal suspend fun SseEventSource.dispatchEvent() {
     // 1 Set the last event ID string of the event source to the value of the last event ID buffer. The buffer does not get reset, so the last event ID string of the event source remains set to this value until the next time it is set by the server.
     lastEventId = buffer.lastEventId
 
@@ -26,7 +26,7 @@ internal suspend fun SseClient.dispatchEvent() {
     resetBuffer()
 
     // 8 Queue a task which, if the readyState attribute is set to a value other than CLOSED, dispatches the newly created event at the EventSource object.
-    if (_readyState.value != SseClient.ReadyState.CLOSED) {
+    if (_readyState.value != SseEventSource.ReadyState.CLOSED) {
         _messages.emit(message)
     } else {
         println("Omit message: $message")

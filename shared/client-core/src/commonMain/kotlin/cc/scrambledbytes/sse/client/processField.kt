@@ -1,10 +1,10 @@
 package cc.scrambledbytes.sse.client
 
 import cc.scrambledbytes.sse.LF
-import cc.scrambledbytes.sse.SseClient
+import cc.scrambledbytes.sse.SseEventSource
 import kotlin.time.Duration.Companion.milliseconds
 
-internal fun SseClient.processField(
+internal fun SseEventSource.processField(
     name: String, fieldValue: String) {
         when (name) {
             "event" -> handleEvent(fieldValue)
@@ -18,7 +18,7 @@ internal fun SseClient.processField(
 /**
  * Set the event type buffer to field value.
  */
-internal fun SseClient.handleEvent(
+internal fun SseEventSource.handleEvent(
     fieldValue: String
 ) {
     buffer = buffer.copy(eventType = fieldValue)
@@ -27,7 +27,7 @@ internal fun SseClient.handleEvent(
 /**
  * Append the field value to the data buffer, then append a single U+000A LINE FEED (LF) character to the data buffer.
  */
-internal fun SseClient.handleData(
+internal fun SseEventSource.handleData(
     fieldValue: String
 ) {
     val newData = buffer.data + fieldValue + LF
@@ -39,7 +39,7 @@ internal fun SseClient.handleData(
  *
  * Otherwise, ignore the field.
  */
-internal fun SseClient.handleId(
+internal fun SseEventSource.handleId(
     fieldValue: String
 ) {
     if (Character.MIN_VALUE in fieldValue)
@@ -54,7 +54,7 @@ internal fun SseClient.handleId(
  *
  * Otherwise, ignore the field.
  */
-internal fun SseClient.handleRetry(
+internal fun SseEventSource.handleRetry(
     fieldValue: String
 ) {
     val newReconnectionTime = fieldValue.toIntOrNull(10)

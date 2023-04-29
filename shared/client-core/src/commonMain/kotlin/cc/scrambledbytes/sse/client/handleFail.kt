@@ -1,6 +1,6 @@
 package cc.scrambledbytes.sse.client
 
-import cc.scrambledbytes.sse.SseClient
+import cc.scrambledbytes.sse.SseEventSource
 import cc.scrambledbytes.sse.SseEventStream
 
 /**
@@ -8,7 +8,7 @@ import cc.scrambledbytes.sse.SseEventStream
  * is set to a value other than CLOSED, sets the readyState attribute to CLOSED and fires an event named error at
  * the EventSource object. Once the user agent has failed the connection, it does not attempt to reconnect.
  */
-internal fun SseClient.handleFail(
+internal fun SseEventSource.handleFail(
     newSource: SseEventStream
 ) {
     newSource.fireError()

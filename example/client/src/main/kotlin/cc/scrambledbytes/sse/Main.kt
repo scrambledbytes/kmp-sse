@@ -1,13 +1,12 @@
 package cc.scrambledbytes.sse
 
 import io.ktor.client.*
-import kotlinx.coroutines.*
 
 suspend fun main() {
     val http = HttpClient()
     val provider = KtorSseEventStreamProvider(http)
 
-    val client = SseClient(
+    val client = SseEventSource(
         url = "http://0.0.0.0:8080/sse",
         provider = provider,
     )

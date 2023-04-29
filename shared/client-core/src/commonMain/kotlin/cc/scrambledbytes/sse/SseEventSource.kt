@@ -52,7 +52,7 @@ internal const val LF = '\u000A' // U+000A LINE FEED (LF)
 
 //https://developer.mozilla.org/en-US/docs/Web/API/EventSource
 // https://html.spec.whatwg.org/multipage/server-sent-events.html#server-sent-events
-class SseClient(
+class SseEventSource(
     internal val url: String,
     private val withCredentials: Boolean = false, // TODO
     internal var reconnectionTime: Duration = 10.seconds,

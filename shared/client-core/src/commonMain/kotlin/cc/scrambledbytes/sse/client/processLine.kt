@@ -1,8 +1,8 @@
 package cc.scrambledbytes.sse.client
 
-import cc.scrambledbytes.sse.SseClient
+import cc.scrambledbytes.sse.SseEventSource
 
-internal suspend fun SseClient.processLine(line: String) {
+internal suspend fun SseEventSource.processLine(line: String) {
         when {
             line.isBlank() -> dispatchEvent()
             line.startsWith(":") -> Unit // Ignore the line.

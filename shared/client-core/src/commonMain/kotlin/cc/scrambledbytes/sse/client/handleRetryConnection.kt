@@ -1,18 +1,18 @@
 package cc.scrambledbytes.sse.client
 
-import cc.scrambledbytes.sse.SseClient
+import cc.scrambledbytes.sse.SseEventSource
 import cc.scrambledbytes.sse.SseEventStream
 import kotlinx.coroutines.delay
 
-internal suspend fun SseClient.handleRetryConnection(
+internal suspend fun SseEventSource.handleRetryConnection(
     eventStream: SseEventStream
 ) {
-    if (_readyState.value == SseClient.ReadyState.CLOSED)
+    if (_readyState.value == SseEventSource.ReadyState.CLOSED)
         return
 
     eventStream.fireError()
 
-    _readyState.value = SseClient.ReadyState.CONNECTING
+    _readyState.value = SseEventSource.ReadyState.CONNECTING
 
     delay(reconnectionTime)
 

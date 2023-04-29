@@ -15,5 +15,4 @@ internal data class SseBuffer(
             lastEventId = lastEventId,
             type = eventType,
         )
-
 }

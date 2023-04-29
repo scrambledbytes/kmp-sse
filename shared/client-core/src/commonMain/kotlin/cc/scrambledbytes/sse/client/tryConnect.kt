@@ -1,13 +1,13 @@
 package cc.scrambledbytes.sse.client
 
-import cc.scrambledbytes.sse.SseClient
+import cc.scrambledbytes.sse.SseEventSource
 import cc.scrambledbytes.sse.SseEventStream
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
-internal fun SseClient.tryConnect() {
-    if (_readyState.value == SseClient.ReadyState.CLOSED)
+internal fun SseEventSource.tryConnect() {
+    if (_readyState.value == SseEventSource.ReadyState.CLOSED)
         return
 
     collectJob?.cancel()
@@ -34,7 +34,7 @@ internal fun SseClient.tryConnect() {
                     newSource.isFailed -> handleFail(newSource)
                     newSource.isRetry -> handleRetryConnection(newSource)
                     else -> {
-                        _readyState.value = SseClient.ReadyState.OPEN
+                        _readyState.value = SseEventSource.ReadyState.OPEN
                         newSource.events
                             .collect { line ->
                                 processLine(line)
