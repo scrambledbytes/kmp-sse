@@ -93,10 +93,13 @@ class SseLineStream(
     interface Provider {
         /**
          * Let lastEventId be the EventSource object's last event ID string, encoded as UTF-8. Set (`Last-Event-ID`, lastEventIDValue) in request's header list.
+         *
+         * withCredentials: if true, set to include. Otherwise, use `same-origin` https://fetch.spec.whatwg.org/#concept-request-credentials-mode
          */
         suspend fun create(
             url: SseUrl,
-            lastEventId: String?
+            lastEventId: String?,
+            withCredentials: Boolean = false,
         ): SseLineStream
 
         fun parse(url: String): SseUrl
