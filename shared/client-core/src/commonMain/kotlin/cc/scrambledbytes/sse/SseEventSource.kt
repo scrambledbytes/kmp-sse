@@ -64,11 +64,12 @@ enum class ReadyState(val value: UShort) {
 
 class SseEventSourceImpl( // needs to be different due to name clash in JS
     urlString: String,
-    override val withCredentials: Boolean = false, //
+    override val withCredentials: Boolean = false,
     internal var delayProvider: (Int) -> Duration = { 10.seconds },
     internal val provider: SseLineStream.Provider,
     context: CoroutineContext = Job(),
-    internal val isStreamFailed: (SseLineStream.ConnectionState) -> Boolean = { false }, // TODO
+    internal val isStreamFailed: (SseLineStream.ConnectionState) -> Boolean = { false },
+    internal val isFatalError: (Throwable) -> Boolean = { false },
     internal val isConnectedProvider: (() -> Flow<Boolean>)? = null
 ) : SseEventSource {
     internal var connectionAttempt: Int = 0

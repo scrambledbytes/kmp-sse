@@ -13,7 +13,7 @@ internal suspend fun SseEventSourceImpl.handleConnected(
 ) {
     val state = intent.state
     when {
-        state.isFailed -> handleFail(state)
+        state.isFailed || isStreamFailed(state) -> handleFail(state)
         state.isRetry -> handleRetryConnection(state)
         else -> handleOpen(state, intent.lines)
     }

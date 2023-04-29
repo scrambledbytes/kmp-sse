@@ -8,8 +8,8 @@ SSE implementation for Kotlin Multiplatform
 ## functionality
 * handle 301 / 307 -> redirect
 * check last connected id
+* withCredential
 * client factory
-* external connection flow that checks whether we are online before reconnecting
 * targets for ktor provider
 * check API + module names
  

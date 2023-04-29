@@ -13,11 +13,17 @@ internal suspend fun SseEventSourceImpl.handleError(
     if (error is CancellationException)
         return
 
-    // TODO custom fail condition
+    val streamState = newSource.state.value
+
+    val isStreamFailed = if (streamState != null) {
+        streamState.isFailed || isStreamFailed(streamState)
+    } else {
+        false
+    }
 
     _state.value = _state.value.copy(
         ready = CLOSED,
-        isFailed = newSource.state.value?.isFailed == true,
+        isFailed = isStreamFailed || isFatalError(error),
         statusCode = newSource.statusCode(),
         throwable = error,
     )
