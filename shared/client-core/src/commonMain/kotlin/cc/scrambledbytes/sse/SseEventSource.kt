@@ -6,49 +6,11 @@ import cc.scrambledbytes.sse.impl.tryConnect
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-
-//    1 Let ev be a new EventSource object.
-//
-//    2 Let settings be ev's relevant settings object.
-//
-//    3 Let urlRecord be the result of parsing url with settings's API base URL and settings's API URL character encoding.
-//
-//    4 If urlRecord is failure, then throw a "SyntaxError" DOMException.
-//
-//    5 Set ev's url to urlRecord.
-//
-//    6 Let corsAttributeState be Anonymous.
-//
-//    7 If the value of eventSourceInitDict's withCredentials member is true, then set corsAttributeState to Use Credentials and set ev's withCredentials attribute to true.
-//
-//    8 Let request be the result of creating a potential-CORS request given urlRecord, the empty string, and corsAttributeState.
-//
-//    9 Set request's client to settings.
-//
-//    10 User agents may set (`Accept`, `text/event-stream`) in request's header list.
-//
-//    11 Set request's cache mode to "no-store".
-//
-//    12 Set request's initiator type to "other".
-//
-//    13 Set ev's request to request.
-//
-//    14 Let processEventSourceEndOfBody given response res be the following step: if res is not a network error, then reestablish the connection.
-//
-//    15 Fetch request, with processResponseEndOfBody set to processEventSourceEndOfBody and processResponse set to the following steps given response res:
-//
-//    16 If res is an aborted network error, then fail the connection.
-//
-//    17 Otherwise, if res is a network error, then reestablish the connection, unless the user agent knows that to be futile, in which case the user agent may fail the connection.
-//
-//    18 Otherwise, if res's status is not 200, or if res's `Content-Type` is not `text/event-stream`, then fail the connection.
-//
-//    19 Otherwise, announce the connection and interpret res's body line by line.
-//
-//    20 Return ev.
 
 internal const val LF = '\u000A' // U+000A LINE FEED (LF)
 
@@ -67,13 +29,13 @@ interface SseEventSource {
     val url: String
     val withCredentials: Boolean
 
-    fun open()
+    suspend fun open()
 
     /**
      * Aborts any instances of the fetch algorithm started for this EventSource object,
      * and sets the readyState attribute to CLOSED.
      */
-    fun close()
+    suspend fun close()
 
     val events: Flow<SseEvent>
 
@@ -101,17 +63,24 @@ class SseEventSourceImpl( // needs to be different due to name clash in JS
     override val url: String,
     override val withCredentials: Boolean = false, //
     internal var reconnectionTime: Duration = 10.seconds,
-    internal val provider: SseEventStream.Provider,
-    context: CoroutineContext = Job()
+    internal val provider: SseLineStream.Provider,
+    context: CoroutineContext = Job(),
+    internal val isStreamFailed: (SseLineStream.State) -> Boolean = { false }
 ) : SseEventSource {
-    override fun open() {
-        tryConnect()
+    override suspend fun open() {
+        mutex.withLock {
+            tryConnect()
+        }
     }
 
-    override fun close() {
-        readyState = CLOSED
-        resetBuffer()
-        supervisor.cancelChildren()
+    internal val mutex = Mutex()
+
+    override suspend fun close() {
+        mutex.withLock {
+            readyState = CLOSED
+            resetBuffer()
+            supervisor.cancelChildren()
+        }
     }
 
     internal var readyState: ReadyState

@@ -2,18 +2,23 @@ package cc.scrambledbytes.sse.impl
 
 import cc.scrambledbytes.sse.ReadyState
 import cc.scrambledbytes.sse.SseEventSourceImpl
-import cc.scrambledbytes.sse.SseEventStream
+import cc.scrambledbytes.sse.SseLineStream
+import java.util.concurrent.CancellationException
 
-fun SseEventSourceImpl.handleError(
-    newSource: SseEventStream,
+internal suspend fun SseEventSourceImpl.handleError(
+    newSource: SseLineStream,
     error: Exception
 ) {
-    // TODO cancellation exception?
+    if (error is CancellationException)
+        return
+
     _state.value = _state.value.copy(
         ready = ReadyState.CLOSED,
         statusCode = newSource.statusCode,
         throwable = error,
     )
 
-    close()
+//    handleRetryConnection(streamState = newSource.state)
 }
+// TODO reconnect after error (i.e., connection error)
+// TODO fix race condition

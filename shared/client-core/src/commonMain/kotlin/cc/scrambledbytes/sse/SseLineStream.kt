@@ -1,7 +1,10 @@
 package cc.scrambledbytes.sse
 
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.BufferOverflow.SUSPEND
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 // closed event streams should be re-connected
 // failed event stream should not be re-connected
@@ -12,35 +15,45 @@ import kotlinx.coroutines.flow.*
  *
  * The HttpRequest depends on the platform and engine used.
  */
-class SseEventStream(
+class SseLineStream(
     private val onClose: () -> Unit, // cleanup hook
     // executes the wrapped request
     private val onExecute: suspend (
-        onState: (State) -> Unit,
+        onState: suspend (State) -> Unit,
         onLine: suspend (String) -> Unit,
     ) -> Unit,
 ) {
-    private val _events: MutableSharedFlow<String> = MutableSharedFlow(
+    private val mutex = Mutex()
+
+    private val _lines: MutableSharedFlow<String> = MutableSharedFlow(
         replay = 0,
         extraBufferCapacity = 10,
-        onBufferOverflow = BufferOverflow.SUSPEND,
+        onBufferOverflow = SUSPEND,
     )
 
-    internal val statusCode:Int
-        get() = state.value?.statusCode ?: -1
+    internal suspend fun statusCode(): Int =
+        mutex.withLock {
+            state.value?.statusCode ?: -1
+        }
+
 
     internal val state = MutableStateFlow<State?>(null)
-    val events: Flow<String>
-        get() = _events
+    internal val lines: Flow<String>
+        get() = _lines
 
-    private fun onState(newState: State) {
-        state.value = newState
+    private suspend fun onState(newState: State) {
+        mutex.withLock {
+            state.value = newState
+        }
     }
 
     private suspend fun onLine(line: String) {
-        requireNotNull(state.value) {"No state, `onState` called before `onLine`?"}
-        _events.emit(line)
+        mutex.withLock {
+            requireNotNull(state.value) { "No state, `onState` called before `onLine`?" }
+            _lines.emit(line)
+        }
     }
+
     fun close() {
         onClose()
     }
@@ -55,16 +68,16 @@ class SseEventStream(
         val isAborted: Boolean,
     ) {
         val isError: Boolean by lazy {
-             statusCode != 200 // TODO handle 301 / 307
+            statusCode != 200 // TODO handle 301 / 307
         }
 
-        val isRetry:Boolean by lazy {
+        val isRetry: Boolean by lazy {
             isError && !isFailed
         }
 
-        val isFailed:Boolean by lazy {
+        val isFailed: Boolean by lazy {
             when {
-                contentType != "text/event-stream" -> true
+                //contentType != "text/event-stream" -> true
                 isAborted -> true// provider thinks reconnection does not make sense
                 statusCode == 204 -> true // in Protocol, see https://html.spec.whatwg.org/multipage/server-sent-events.html#server-sent-events-intro
                 statusCode == 401 -> true // Unauthorized -> No point in reconnection
@@ -82,6 +95,6 @@ class SseEventStream(
         suspend fun create(
             url: String,
             lastEventId: String?
-        ): SseEventStream
+        ): SseLineStream
     }
 }

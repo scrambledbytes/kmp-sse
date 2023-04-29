@@ -38,6 +38,10 @@ fun Application.configureRouting() {
         get("/sse-401") {
             call.respond(HttpStatusCode.Unauthorized)
         }
+
+        get("/sse-500") {
+            throw IllegalArgumentException("Test")
+        }
     }
 }
 

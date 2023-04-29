@@ -1,19 +1,18 @@
 package cc.scrambledbytes.sse.impl
 
-import cc.scrambledbytes.sse.ReadyState
 import cc.scrambledbytes.sse.ReadyState.OPEN
 import cc.scrambledbytes.sse.SseEventSourceImpl
-import cc.scrambledbytes.sse.SseEventStream
+import cc.scrambledbytes.sse.SseLineStream
 
 internal suspend fun SseEventSourceImpl.handleOpen(
-    it: SseEventStream.State,
-    newSource: SseEventStream
+    it: SseLineStream.State,
+    newSource: SseLineStream
 ) {
     _state.value = _state.value.copy(
         ready = OPEN,
         statusCode = it.statusCode,
     )
-    newSource.events
+    newSource.lines
         .collect { line ->
             processLine(line)
         }

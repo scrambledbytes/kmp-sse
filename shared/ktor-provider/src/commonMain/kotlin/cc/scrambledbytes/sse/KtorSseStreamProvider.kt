@@ -13,12 +13,12 @@ import kotlinx.coroutines.*
 
 class KtorSseEventStreamProvider(
     private val client: HttpClient //TODO more generic ?
-) : SseEventStream.Provider {
+) : SseLineStream.Provider {
 
     override suspend fun create(
         url: String,
         lastEventId: String?
-    ): SseEventStream {
+    ): SseLineStream {
         // TODO parse url
         debugTrace("Connecting: $url, $lastEventId")
 
@@ -36,7 +36,7 @@ class KtorSseEventStreamProvider(
             job = executionContext
         }
 
-        return SseEventStream(
+        return SseLineStream(
             onClose = {
                 debugTrace("Closing SSE event stream")
                 job?.cancel()
@@ -45,7 +45,7 @@ class KtorSseEventStreamProvider(
                 statement.execute { response ->
                     debugTrace("Got response: $response")
                     onState(
-                        SseEventStream.State(
+                        SseLineStream.State(
                             statusCode = response.status.value,
                             contentType = getContentType(response),
                             isAborted = response.status == HttpStatusCode.NoContent,

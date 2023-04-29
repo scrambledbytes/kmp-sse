@@ -1,20 +1,20 @@
 package cc.scrambledbytes.sse.impl
 
-import cc.scrambledbytes.sse.ReadyState
-import cc.scrambledbytes.sse.ReadyState.CLOSED
 import cc.scrambledbytes.sse.SseEventSourceImpl
-import cc.scrambledbytes.sse.SseEventStream
+import cc.scrambledbytes.sse.SseLineStream
 import cc.scrambledbytes.sse.util.debugTrace
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-internal fun SseEventSourceImpl.tryConnect() {
+internal suspend fun SseEventSourceImpl.tryConnect() {
+    debugTrace("tryConnect")
     if (isFailed)
         return
 
     collectJob?.cancel()
-    var source: SseEventStream? = null
+    var source: SseLineStream? = null
 
     collectJob = scope.launch {
         debugTrace("Collect job started")
@@ -26,7 +26,9 @@ internal fun SseEventSourceImpl.tryConnect() {
 
         launch {
             try {
-                newSource.connect()
+                if (isActive) {
+                    newSource.connect()
+                }
             } catch (e: Exception) {
                 debugTrace("Failed connection: $e")
                 handleError(newSource, e)
@@ -48,7 +50,7 @@ internal fun SseEventSourceImpl.tryConnect() {
     }
 
     collectJob?.invokeOnCompletion {
-        debugTrace("Collect job finished, cleanup")
+        debugTrace("Collect job($collectJob) finished, cleanup")
         source?.close()
     }
 

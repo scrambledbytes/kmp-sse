@@ -9,18 +9,16 @@ suspend fun main() {
     val provider = KtorSseEventStreamProvider(http)
 
     val client = SseEventSourceImpl(
-        url = "http://0.0.0.0:8080/sse-401",
+        url = "http://0.0.0.0:8080/sse-500",
         provider = provider,
     )
 
     client.open()
 
     GlobalScope.launch {
-
         client.state.collect {
             println("[Client] Got state: $it")
         }
-
     }
 
     client.events.collect {
