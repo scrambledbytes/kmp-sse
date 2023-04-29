@@ -1,43 +1,62 @@
 package cc.scrambledbytes.sse.impl
 
+import cc.scrambledbytes.sse.ReadyState.CLOSED
 import cc.scrambledbytes.sse.SseEventSourceImpl
 import cc.scrambledbytes.sse.SseLineStream
 import cc.scrambledbytes.sse.util.debugTrace
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 internal suspend fun SseEventSourceImpl.handleConnect() {
     debugTrace("tryConnect")
-    val source: SseLineStream = provider.create(url, lastEventId)
+    val stream = createStream()
+        ?: return
 
-    val job = lineScope.launch {
-        debugTrace("Collect job started")
+    lineScope.launch {
+
         launch {
-            try {
-                if (isActive) {
-                    source.connect()
-                }
-            } catch (e: Exception) {
-                debugTrace("Failed connection: $e")
-                schedule(SseEventSourceImpl.Intent.HandleError(source, e))
-            }
+            connectStream(stream)
         }
 
-        debugTrace("Connecting")
-
-        source.state // this will change at most once
-            .filterNotNull()
-            .collect {
-                debugTrace("Connected to SseLineStream: $it")
-                schedule(SseEventSourceImpl.Intent.Connected(it, source.lines))
-            }
-    }
-
-    job.invokeOnCompletion {
-        debugTrace("Collect $job finished, cleanup in $source")
-        source.close()
+        waitForConnection(stream)
+    }.invokeOnCompletion {
+        debugTrace("Line stream completed($it), cleanup in $stream")
+        stream.close()
     }
 }
+
+private suspend fun SseEventSourceImpl.waitForConnection(
+    stream: SseLineStream,
+) {
+    stream.state // this will change at most once
+        .filterNotNull()
+        .collect {
+            debugTrace("Connected to SseLineStream: $it")
+            schedule(SseEventSourceImpl.Intent.Connected(it, stream.lines))
+        }
+}
+
+private suspend fun SseEventSourceImpl.connectStream(
+    source: SseLineStream,
+) {
+    try {
+        source.connect()
+    } catch (e: Exception) {
+        debugTrace("Failed connection: $e")
+        schedule(SseEventSourceImpl.Intent.HandleError(source, e))
+    }
+}
+
+private suspend fun SseEventSourceImpl.createStream(): SseLineStream? =
+    try {
+        provider.create(url, lastEventId)
+    } catch (e: Exception) {
+        _state.value = _state.value.copy(
+            ready = CLOSED,
+            isFailed = true,
+            throwable = e,
+        )
+        null
+    }
 
 

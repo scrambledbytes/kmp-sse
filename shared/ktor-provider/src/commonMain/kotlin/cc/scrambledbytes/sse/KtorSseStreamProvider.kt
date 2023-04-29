@@ -12,14 +12,13 @@ import kotlinx.coroutines.*
 
 
 class KtorSseEventStreamProvider(
-    private val client: HttpClient //TODO more generic ?
+    private val client: HttpClient
 ) : SseLineStream.Provider {
 
     override suspend fun create(
         url: SseUrl,
         lastEventId: String?
     ): SseLineStream {
-        // TODO parse url
         debugTrace("Connecting: $url, $lastEventId")
 
         var job: Job? = null

@@ -4,8 +4,6 @@ package cc.scrambledbytes.sse
 value class SseLine(
     val value: String
 ) {
-    // TODO validate UTF 8 encoding
-
     val isDispatch: Boolean
         get() = value.isBlank()
 
