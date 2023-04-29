@@ -1,10 +1,11 @@
 package cc.scrambledbytes.sse.impl
 
-import cc.scrambledbytes.sse.ReadyState
 import cc.scrambledbytes.sse.ReadyState.CONNECTING
 import cc.scrambledbytes.sse.SseEventSourceImpl
 import cc.scrambledbytes.sse.SseEventSourceImpl.Intent.Connect
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 fun SseEventSourceImpl.handleDelayedConnectionAttempt() {
@@ -17,10 +18,17 @@ fun SseEventSourceImpl.handleDelayedConnectionAttempt() {
 
         delay(duration = reconnectionTime ?: delayProvider(connectionAttempt))
 
-        /*
-        TODO Optionally, wait some more. In particular, if the previous attempt failed, then user agents might introduce an exponential backoff delay to avoid overloading a potentially already overloaded server. Alternatively, if the operating system has reported that there is no network connectivity, user agents might wait for the operating system to announce that the network connection has returned before retrying.
-        */
-
+        waitForInternetConnection()
+        
         schedule(Connect)
+    }
+}
+
+private suspend fun SseEventSourceImpl.waitForInternetConnection() {
+    val provider = isConnectedProvider
+    if (provider != null) {
+        provider()
+            .filter { isConnected -> isConnected }
+            .first()
     }
 }

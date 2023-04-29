@@ -68,8 +68,8 @@ class SseEventSourceImpl( // needs to be different due to name clash in JS
     internal var delayProvider: (Int) -> Duration = { 10.seconds },
     internal val provider: SseLineStream.Provider,
     context: CoroutineContext = Job(),
-    internal val isStreamFailed: (SseLineStream.ConnectionState) -> Boolean = { false } // TODO
-    // TODO custom reconnection strategy
+    internal val isStreamFailed: (SseLineStream.ConnectionState) -> Boolean = { false }, // TODO
+    internal val isConnectedProvider: (() -> Flow<Boolean>)? = null
 ) : SseEventSource {
     internal var connectionAttempt: Int = 0
     internal var reconnectionTime: Duration? = null
