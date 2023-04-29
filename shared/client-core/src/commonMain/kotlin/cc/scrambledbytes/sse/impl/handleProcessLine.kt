@@ -2,24 +2,42 @@ package cc.scrambledbytes.sse.impl
 
 import cc.scrambledbytes.sse.LF
 import cc.scrambledbytes.sse.SseEventSourceImpl
-import java.lang.Character.MIN_VALUE
+import cc.scrambledbytes.sse.SseLine
 import kotlin.time.Duration.Companion.milliseconds
 
-internal fun SseEventSourceImpl.processField(
-    name: String, fieldValue: String) {
-        when (name) {
-            "event" -> handleEvent(fieldValue)
-            "data" -> handleData(fieldValue)
-            "id" -> handleId(fieldValue)
-            "retry" -> handleRetry(fieldValue)
-            else -> Unit // The field is ignored.
+internal suspend fun SseEventSourceImpl.handleProcessLine(
+    line: SseLine
+) {
+    when {
+        line.isDispatch -> handleDispatch()
+        line.isIgnore -> Unit // Ignore the line.
+        line.isProcessField -> {
+            val (name, value) = line.value.split(":")
+            processField(
+                name = name,
+                value.removePrefix(" "), //If value starts with a U+0020 SPACE character, remove it from value.
+            )
         }
+
+        else -> processField(name = line.value, fieldValue = "")
     }
+}
+
+private fun SseEventSourceImpl.processField(
+    name: String, fieldValue: String) {
+    when (name) {
+        "event" -> handleEvent(fieldValue)
+        "data" -> handleData(fieldValue)
+        "id" -> handleId(fieldValue)
+        "retry" -> handleRetry(fieldValue)
+        else -> Unit // The field is ignored.
+    }
+}
 
 /**
  * Set the event type buffer to field value.
  */
-internal fun SseEventSourceImpl.handleEvent(
+private fun SseEventSourceImpl.handleEvent(
     fieldValue: String
 ) {
     buffer = buffer.copy(eventType = fieldValue)
@@ -28,7 +46,7 @@ internal fun SseEventSourceImpl.handleEvent(
 /**
  * Append the field value to the data buffer, then append a single U+000A LINE FEED (LF) character to the data buffer.
  */
-internal fun SseEventSourceImpl.handleData(
+private fun SseEventSourceImpl.handleData(
     fieldValue: String
 ) {
     val newData = buffer.data + fieldValue + LF
@@ -40,10 +58,10 @@ internal fun SseEventSourceImpl.handleData(
  *
  * Otherwise, ignore the field.
  */
-internal fun SseEventSourceImpl.handleId(
+private fun SseEventSourceImpl.handleId(
     fieldValue: String
 ) {
-    if (MIN_VALUE in fieldValue)
+    if (Character.MIN_VALUE in fieldValue)
         return
 
     buffer = buffer.copy(lastEventId = fieldValue)
@@ -55,7 +73,7 @@ internal fun SseEventSourceImpl.handleId(
  *
  * Otherwise, ignore the field.
  */
-internal fun SseEventSourceImpl.handleRetry(
+private fun SseEventSourceImpl.handleRetry(
     fieldValue: String
 ) {
     val newReconnectionTime = fieldValue.toIntOrNull(10)

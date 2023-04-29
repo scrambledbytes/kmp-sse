@@ -2,21 +2,22 @@ package cc.scrambledbytes.sse
 
 import cc.scrambledbytes.sse.ReadyState.CLOSED
 import cc.scrambledbytes.sse.ReadyState.CONNECTING
-import cc.scrambledbytes.sse.impl.tryConnect
+import cc.scrambledbytes.sse.impl.*
+import cc.scrambledbytes.sse.impl.handleConnected
+import cc.scrambledbytes.sse.impl.handleError
+import cc.scrambledbytes.sse.impl.handleConnect
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-internal const val LF = '\u000A' // U+000A LINE FEED (LF)
+internal const val LF = '\u000A' // U+000A LINE FEED (LF) // TODO check if we can use Char LF
 
 //https://developer.mozilla.org/en-US/docs/Web/API/EventSource
 // https://html.spec.whatwg.org/multipage/server-sent-events.html#server-sent-events
-
 
 /**
  * SSE event source
@@ -34,6 +35,8 @@ interface SseEventSource {
     /**
      * Aborts any instances of the fetch algorithm started for this EventSource object,
      * and sets the readyState attribute to CLOSED.
+     *
+     * Can be re - opened if not failed
      */
     suspend fun close()
 
@@ -59,28 +62,58 @@ enum class ReadyState(val value: UShort) {
     CLOSED(2u),
 }
 
+
 class SseEventSourceImpl( // needs to be different due to name clash in JS
     override val url: String,
     override val withCredentials: Boolean = false, //
     internal var reconnectionTime: Duration = 10.seconds,
     internal val provider: SseLineStream.Provider,
     context: CoroutineContext = Job(),
-    internal val isStreamFailed: (SseLineStream.ConnectionState) -> Boolean = { false }
+    internal val isStreamFailed: (SseLineStream.ConnectionState) -> Boolean = { false } // TODO
 ) : SseEventSource {
     override suspend fun open() {
-        mutex.withLock {
-            tryConnect()
+        require(!isFailed)
+        schedule(Intent.Connect)
+    }
+
+    private val intentScope: CoroutineScope = CoroutineScope(context = context)
+    private val channel = Channel<Intent>(capacity = Channel.UNLIMITED)
+    private val intentJob: Job = intentScope.launch {
+        channel.consumeAsFlow()
+            .collect { handleIntent(it) }
+    }
+
+    internal suspend fun schedule(intent: Intent) {
+        channel.send(intent)
+    }
+
+    private val supervisor: Job = SupervisorJob()
+    internal val lineScope = CoroutineScope(context + supervisor)
+
+    private suspend fun handleIntent(
+        intent: Intent
+    ) {
+        if (isFailed)
+            return
+
+        when (intent) {
+            Intent.Connect -> handleConnect()
+            is Intent.Connected -> handleConnected(intent)
+            Intent.Dispatch -> handleDispatch()
+            is Intent.HandleError -> handleError(intent.source, intent.throwable)
+            is Intent.ProcessLine -> handleProcessLine(intent.line)
+            Intent.ConnectDelayed -> handleDelayedConnectionAttempt()
         }
     }
 
-    internal val mutex = Mutex()
-
     override suspend fun close() {
-        mutex.withLock {
-            readyState = CLOSED
-            resetBuffer()
-            supervisor.cancelChildren()
-        }
+        readyState = CLOSED
+        stop()
+    }
+
+    internal fun stop() {
+        resetBuffer()
+        supervisor.cancelChildren()
     }
 
     internal var readyState: ReadyState
@@ -98,7 +131,7 @@ class SseEventSourceImpl( // needs to be different due to name clash in JS
         get() = _state
 
     val isFailed: Boolean
-        get() = false
+        get() = _state.value.isFailed
 
     internal var lastEventId: String? = null//  This must initially be the empty string.
     internal var buffer = SseBuffer()
@@ -110,12 +143,25 @@ class SseEventSourceImpl( // needs to be different due to name clash in JS
             onBufferOverflow = BufferOverflow.SUSPEND
         )
 
-    private val supervisor: Job = SupervisorJob()
-    internal val scope: CoroutineScope = CoroutineScope(context = context + supervisor)
-    internal var collectJob: Job? = null
-
     internal fun resetBuffer() {
         buffer = SseBuffer()
+    }
+
+    internal sealed interface Intent {
+        object Connect : Intent
+        object ConnectDelayed : Intent
+        object Dispatch : Intent
+        data class ProcessLine(val line: SseLine) : Intent
+
+        data class HandleError(
+            val source: SseLineStream,
+            val throwable: Throwable
+        ) : Intent
+
+        data class Connected(
+            val state: SseLineStream.ConnectionState,
+            val lines: Flow<SseLine>,
+        ) : Intent
     }
 }
 

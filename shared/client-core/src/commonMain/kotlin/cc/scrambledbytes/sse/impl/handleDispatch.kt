@@ -4,7 +4,7 @@ import cc.scrambledbytes.sse.ReadyState.CLOSED
 import cc.scrambledbytes.sse.SseEventSourceImpl
 import cc.scrambledbytes.sse.util.debugTrace
 
-internal suspend fun SseEventSourceImpl.dispatchEvent() {
+internal suspend fun SseEventSourceImpl.handleDispatch() {
     // 1 Set the last event ID string of the event source to the value of the last event ID buffer. The buffer does not get reset, so the last event ID string of the event source remains set to this value until the next time it is set by the server.
     lastEventId = buffer.lastEventId
 

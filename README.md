@@ -7,4 +7,5 @@ SSE implementation for Kotlin Multiplatform
 * handle 204 -> don't reconnect
 * handle 301 / 307 -> redirect 
 * handle errors 
+* SseEventSource -> Channel
 
