@@ -45,7 +45,7 @@ class KtorSseEventStreamProvider(
                 statement.execute { response ->
                     debugTrace("Got response: $response")
                     onState(
-                        SseLineStream.State(
+                        SseLineStream.ConnectionState(
                             statusCode = response.status.value,
                             contentType = getContentType(response),
                             isAborted = response.status == HttpStatusCode.NoContent,

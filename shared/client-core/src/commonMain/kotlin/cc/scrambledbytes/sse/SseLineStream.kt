@@ -20,7 +20,7 @@ class SseLineStream(
     private val onClose: () -> Unit, // cleanup hook
     // executes the wrapped request
     private val onExecute: suspend (
-        onState: suspend (State) -> Unit,
+        onState: suspend (ConnectionState) -> Unit,
         onLine: suspend (SseLine) -> Unit,
     ) -> Unit,
 ) {
@@ -38,19 +38,22 @@ class SseLineStream(
         }
 
 
-    internal val state = MutableStateFlow<State?>(null)
+    internal val state = MutableStateFlow<ConnectionState?>(null)
     internal val lines: Flow<SseLine>
         get() = _lines
 
-    private suspend fun onState(newState: State) {
+    private suspend fun onConnected(
+        newState: ConnectionState
+    ) {
         mutex.withLock {
+            require(state.value == null) { "Already connected, cannot call `onConnected` twice." }
             state.value = newState
         }
     }
 
     private suspend fun onLine(line: SseLine) {
         mutex.withLock {
-            requireNotNull(state.value) { "No state, `onState` called before `onLine`?" }
+            requireNotNull(state.value) { "No state, `onConnected` called before `onLine`?" }
             _lines.emit(line)
         }
     }
@@ -60,10 +63,10 @@ class SseLineStream(
     }
 
     suspend fun connect() {
-        onExecute(::onState, ::onLine)
+        onExecute(::onConnected, ::onLine)
     }
 
-    data class State(
+    data class ConnectionState(
         val statusCode: Int,
         val contentType: String,
         val isAborted: Boolean,

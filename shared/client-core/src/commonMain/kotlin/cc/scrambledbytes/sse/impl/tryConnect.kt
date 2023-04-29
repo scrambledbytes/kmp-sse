@@ -3,6 +3,7 @@ package cc.scrambledbytes.sse.impl
 import cc.scrambledbytes.sse.SseEventSourceImpl
 import cc.scrambledbytes.sse.SseLineStream
 import cc.scrambledbytes.sse.util.debugTrace
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.isActive
@@ -21,7 +22,6 @@ internal suspend fun SseEventSourceImpl.tryConnect() {
         // TODO mutex
         // TODO refactoring
         val newSource = provider.create(url, lastEventId)
-        debugTrace("Source created")
         source = newSource
 
         launch {
@@ -37,10 +37,10 @@ internal suspend fun SseEventSourceImpl.tryConnect() {
 
         debugTrace("Connecting")
 
-        newSource.state
+        newSource.state // this will change at most once
             .filterNotNull()
-            .collectLatest {
-                debugTrace("New stream state: $it")
+            .collect {
+                debugTrace("Connected to SseLineStream: $it")
                 when {
                     it.isFailed -> handleFail(it)
                     it.isRetry -> handleRetryConnection(it)
