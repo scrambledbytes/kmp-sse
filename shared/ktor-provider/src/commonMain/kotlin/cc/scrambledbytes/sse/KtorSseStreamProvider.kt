@@ -16,7 +16,7 @@ class KtorSseEventStreamProvider(
 ) : SseLineStream.Provider {
 
     override suspend fun create(
-        url: String,
+        url: SseUrl,
         lastEventId: String?
     ): SseLineStream {
         // TODO parse url
@@ -24,7 +24,7 @@ class KtorSseEventStreamProvider(
 
         var job: Job? = null
 
-        val statement = client.prepareGet(url) {
+        val statement = client.prepareGet(url.value) {
             // TODO set headers
             headers {
                 set(HttpHeaders.CacheControl, "no-store")
@@ -77,4 +77,9 @@ class KtorSseEventStreamProvider(
             null -> ""
             else -> "${type.contentType}/${type.contentSubtype}"
         }
+
+    override fun parse(url: String): SseUrl {
+        Url(url)
+        return SseUrl(url)
+    }
 }

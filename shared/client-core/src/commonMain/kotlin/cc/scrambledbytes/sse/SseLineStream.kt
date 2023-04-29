@@ -9,8 +9,6 @@ import kotlinx.coroutines.sync.withLock
 // failed event stream should not be re-connected
 
 
-
-
 /**
  * Wrapper at the HttpRequest that connects to the text stream
  *
@@ -92,13 +90,15 @@ class SseLineStream(
     }
 
     // TODO document
-    fun interface Provider {
+    interface Provider {
         /**
          * Let lastEventId be the EventSource object's last event ID string, encoded as UTF-8. Set (`Last-Event-ID`, lastEventIDValue) in request's header list.
          */
         suspend fun create(
-            url: String,
+            url: SseUrl,
             lastEventId: String?
         ): SseLineStream
+
+        fun parse(url: String): SseUrl
     }
 }

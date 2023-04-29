@@ -27,7 +27,7 @@ internal const val LF = '\u000A' // U+000A LINE FEED (LF) // TODO check if we ca
  * withCredentials:
  */
 interface SseEventSource {
-    val url: String
+    val url: SseUrl
     val withCredentials: Boolean
 
     suspend fun open()
@@ -36,7 +36,7 @@ interface SseEventSource {
      * Aborts any instances of the fetch algorithm started for this EventSource object,
      * and sets the readyState attribute to CLOSED.
      *
-     * Can be re - opened if not failed
+     * Can be re-opened if not failed
      */
     suspend fun close()
 
@@ -62,17 +62,18 @@ enum class ReadyState(val value: UShort) {
     CLOSED(2u),
 }
 
-
 class SseEventSourceImpl( // needs to be different due to name clash in JS
-    override val url: String,
+    urlString: String,
     override val withCredentials: Boolean = false, //
     internal var reconnectionTime: Duration = 10.seconds,
     internal val provider: SseLineStream.Provider,
     context: CoroutineContext = Job(),
     internal val isStreamFailed: (SseLineStream.ConnectionState) -> Boolean = { false } // TODO
+    // TODO custom reconnection strategy
 ) : SseEventSource {
+    override val url: SseUrl = provider.parse(urlString)
     override suspend fun open() {
-        require(!isFailed)
+        require(!_state.value.isFailed)
         schedule(Intent.Connect)
     }
 
@@ -93,7 +94,7 @@ class SseEventSourceImpl( // needs to be different due to name clash in JS
     private suspend fun handleIntent(
         intent: Intent
     ) {
-        if (isFailed)
+        if (_state.value.isFailed)
             return
 
         when (intent) {
@@ -130,9 +131,6 @@ class SseEventSourceImpl( // needs to be different due to name clash in JS
     override val state: Flow<SseEventSource.State>
         get() = _state
 
-    val isFailed: Boolean
-        get() = _state.value.isFailed
-
     internal var lastEventId: String? = null//  This must initially be the empty string.
     internal var buffer = SseBuffer()
 
@@ -164,4 +162,3 @@ class SseEventSourceImpl( // needs to be different due to name clash in JS
         ) : Intent
     }
 }
-
