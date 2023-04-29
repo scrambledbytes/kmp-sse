@@ -83,7 +83,12 @@ interface SseEventSource {
         val ready: ReadyState = CONNECTING,
         val isFailed: Boolean = false,
         val statusCode: Int = -1,
-    )
+        val throwable: Throwable? = null
+    ) {
+        val isError: Boolean by lazy {
+            throwable != null
+        }
+    }
 }
 
 enum class ReadyState(val value: UShort) {
@@ -104,9 +109,9 @@ class SseEventSourceImpl( // needs to be different due to name clash in JS
     }
 
     override fun close() {
+        readyState = CLOSED
         resetBuffer()
         supervisor.cancelChildren()
-        readyState = CLOSED
     }
 
     internal var readyState: ReadyState
@@ -126,7 +131,7 @@ class SseEventSourceImpl( // needs to be different due to name clash in JS
     val isFailed: Boolean
         get() = false
 
-    internal var lastEventId: String = "" //  This must initially be the empty string.
+    internal var lastEventId: String? = null//  This must initially be the empty string.
     internal var buffer = SseBuffer()
 
     internal val _messages =

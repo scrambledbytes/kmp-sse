@@ -49,7 +49,6 @@ class KtorSseEventStreamProvider(
                             statusCode = response.status.value,
                             contentType = getContentType(response),
                             isAborted = response.status == HttpStatusCode.NoContent,
-                            error = null,
                         )
                     )
 

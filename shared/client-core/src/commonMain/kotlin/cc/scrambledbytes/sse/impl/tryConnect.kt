@@ -1,6 +1,7 @@
 package cc.scrambledbytes.sse.impl
 
-import cc.scrambledbytes.sse.ReadyState.OPEN
+import cc.scrambledbytes.sse.ReadyState
+import cc.scrambledbytes.sse.ReadyState.CLOSED
 import cc.scrambledbytes.sse.SseEventSourceImpl
 import cc.scrambledbytes.sse.SseEventStream
 import cc.scrambledbytes.sse.util.debugTrace
@@ -28,7 +29,7 @@ internal fun SseEventSourceImpl.tryConnect() {
                 newSource.connect()
             } catch (e: Exception) {
                 debugTrace("Failed connection: $e")
-                handleConnectionError(newSource, e)
+                handleError(newSource, e)
             }
         }
 
@@ -54,16 +55,4 @@ internal fun SseEventSourceImpl.tryConnect() {
     debugTrace("Finished")
 }
 
-fun SseEventSourceImpl.handleConnectionError(
-    newSource: SseEventStream,
-    error: Exception
-) {
-    // TODO cancellation exception?
-    val streamState = newSource.state.value
-    _state.value = _state.value.copy(
-
-    )
-
-
-}
 

@@ -53,10 +53,9 @@ class SseEventStream(
         val statusCode: Int,
         val contentType: String,
         val isAborted: Boolean,
-        val error: Throwable? = null,
     ) {
         val isError: Boolean by lazy {
-            error != null
+             statusCode != 200 // TODO handle 301 / 307
         }
 
         val isRetry:Boolean by lazy {
@@ -66,8 +65,10 @@ class SseEventStream(
         val isFailed:Boolean by lazy {
             when {
                 contentType != "text/event-stream" -> true
-                isAborted -> true
-                statusCode != 200 -> true
+                isAborted -> true// provider thinks reconnection does not make sense
+                statusCode == 204 -> true // in Protocol, see https://html.spec.whatwg.org/multipage/server-sent-events.html#server-sent-events-intro
+                statusCode == 401 -> true // Unauthorized -> No point in reconnection
+                statusCode == 403 -> true // Forbidden -> No point in reconnection
                 else -> false
             }
         }
