@@ -27,7 +27,7 @@ internal suspend fun SseEventSourceImpl.tryConnect() {
         launch {
             try {
                 if (isActive) {
-                    newSource.connect() // blocking call
+                    newSource.connect()
                 }
             } catch (e: Exception) {
                 debugTrace("Failed connection: $e")
@@ -40,7 +40,6 @@ internal suspend fun SseEventSourceImpl.tryConnect() {
         newSource.state
             .filterNotNull()
             .collectLatest {
-
                 debugTrace("New stream state: $it")
                 when {
                     it.isFailed -> handleFail(it)

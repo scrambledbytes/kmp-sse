@@ -41,11 +41,11 @@ class KtorSseEventStreamProvider(
                 debugTrace("Closing SSE event stream")
                 job?.cancel()
             },
-            onExecute = { onConnected, onLine ->
+            onExecute = { onState, onLine ->
                 statement.execute { response ->
                     debugTrace("Got response: $response")
-                    onConnected(
-                        SseLineStream.ConnectionState(
+                    onState(
+                        SseLineStream.State(
                             statusCode = response.status.value,
                             contentType = getContentType(response),
                             isAborted = response.status == HttpStatusCode.NoContent,

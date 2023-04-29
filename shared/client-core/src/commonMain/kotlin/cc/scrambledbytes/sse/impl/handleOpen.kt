@@ -5,7 +5,7 @@ import cc.scrambledbytes.sse.SseEventSourceImpl
 import cc.scrambledbytes.sse.SseLineStream
 
 internal suspend fun SseEventSourceImpl.handleOpen(
-    it: SseLineStream.ConnectionState,
+    it: SseLineStream.State,
     newSource: SseLineStream
 ) {
     _state.value = _state.value.copy(

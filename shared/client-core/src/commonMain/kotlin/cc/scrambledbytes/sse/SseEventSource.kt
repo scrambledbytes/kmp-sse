@@ -65,7 +65,7 @@ class SseEventSourceImpl( // needs to be different due to name clash in JS
     internal var reconnectionTime: Duration = 10.seconds,
     internal val provider: SseLineStream.Provider,
     context: CoroutineContext = Job(),
-    internal val isStreamFailed: (SseLineStream.ConnectionState) -> Boolean = { false }
+    internal val isStreamFailed: (SseLineStream.State) -> Boolean = { false }
 ) : SseEventSource {
     override suspend fun open() {
         mutex.withLock {
