@@ -14,6 +14,6 @@ internal suspend fun SseEventSourceImpl.handleOpen(
     )
     newSource.lines
         .collect { line ->
-            processLine(line)
+            processLine(line.value)
         }
 }

@@ -1,6 +1,7 @@
 package cc.scrambledbytes.sse.impl
 
 import cc.scrambledbytes.sse.ReadyState
+import cc.scrambledbytes.sse.ReadyState.CLOSED
 import cc.scrambledbytes.sse.SseEventSourceImpl
 import cc.scrambledbytes.sse.SseLineStream
 import java.util.concurrent.CancellationException
@@ -13,8 +14,8 @@ internal suspend fun SseEventSourceImpl.handleError(
         return
 
     _state.value = _state.value.copy(
-        ready = ReadyState.CLOSED,
-        statusCode = newSource.statusCode,
+        ready = CLOSED,
+        statusCode = newSource.statusCode(),
         throwable = error,
     )
 

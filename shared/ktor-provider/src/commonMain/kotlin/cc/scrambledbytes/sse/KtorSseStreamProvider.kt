@@ -63,7 +63,7 @@ class KtorSseEventStreamProvider(
                         newBuffer?.let {
                             val lines = it.split("\n")
                             for (line in lines) {
-                                onLine(line)
+                                onLine(SseLine(line))
                             }
                         }
                     }

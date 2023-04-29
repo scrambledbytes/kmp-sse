@@ -1,6 +1,5 @@
 package cc.scrambledbytes.sse
 
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.BufferOverflow.SUSPEND
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
@@ -9,6 +8,13 @@ import kotlinx.coroutines.sync.withLock
 // closed event streams should be re-connected
 // failed event stream should not be re-connected
 
+
+@JvmInline
+value class SseLine(
+    val value:String
+) {
+    // TODO validate UTF 8 encoding
+}
 
 /**
  * Wrapper at the HttpRequest that connects to the text stream
@@ -20,12 +26,12 @@ class SseLineStream(
     // executes the wrapped request
     private val onExecute: suspend (
         onState: suspend (State) -> Unit,
-        onLine: suspend (String) -> Unit,
+        onLine: suspend (SseLine) -> Unit,
     ) -> Unit,
 ) {
     private val mutex = Mutex()
 
-    private val _lines: MutableSharedFlow<String> = MutableSharedFlow(
+    private val _lines: MutableSharedFlow<SseLine> = MutableSharedFlow(
         replay = 0,
         extraBufferCapacity = 10,
         onBufferOverflow = SUSPEND,
@@ -38,7 +44,7 @@ class SseLineStream(
 
 
     internal val state = MutableStateFlow<State?>(null)
-    internal val lines: Flow<String>
+    internal val lines: Flow<SseLine>
         get() = _lines
 
     private suspend fun onState(newState: State) {
@@ -47,7 +53,7 @@ class SseLineStream(
         }
     }
 
-    private suspend fun onLine(line: String) {
+    private suspend fun onLine(line: SseLine) {
         mutex.withLock {
             requireNotNull(state.value) { "No state, `onState` called before `onLine`?" }
             _lines.emit(line)
