@@ -65,12 +65,15 @@ enum class ReadyState(val value: UShort) {
 class SseEventSourceImpl( // needs to be different due to name clash in JS
     urlString: String,
     override val withCredentials: Boolean = false, //
-    internal var reconnectionTime: Duration = 10.seconds,
+    internal var delayProvider: (Int) -> Duration = { 10.seconds },
     internal val provider: SseLineStream.Provider,
     context: CoroutineContext = Job(),
     internal val isStreamFailed: (SseLineStream.ConnectionState) -> Boolean = { false } // TODO
     // TODO custom reconnection strategy
 ) : SseEventSource {
+    internal var connectionAttempt: Int = 0
+    internal var reconnectionTime: Duration? = null
+
     override val url: SseUrl = provider.parse(urlString)
     override suspend fun open() {
         require(!_state.value.isFailed)

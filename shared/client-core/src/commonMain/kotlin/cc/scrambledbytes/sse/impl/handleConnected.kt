@@ -1,13 +1,14 @@
 package cc.scrambledbytes.sse.impl
 
 import cc.scrambledbytes.sse.ReadyState
+import cc.scrambledbytes.sse.ReadyState.OPEN
 import cc.scrambledbytes.sse.SseEventSourceImpl
 import cc.scrambledbytes.sse.SseLine
 import cc.scrambledbytes.sse.SseLineStream
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
-internal suspend fun  SseEventSourceImpl.handleConnected(
+internal suspend fun SseEventSourceImpl.handleConnected(
     intent: SseEventSourceImpl.Intent.Connected
 ) {
     val state = intent.state
@@ -53,9 +54,11 @@ private suspend fun SseEventSourceImpl.handleOpen(
     lines: Flow<SseLine>
 ) {
     _state.value = _state.value.copy(
-        ready = ReadyState.OPEN,
+        ready = OPEN,
         statusCode = connectionState.statusCode,
     )
+
+    connectionAttempt = 0
 
     lineScope.launch {
         lines.collect { line ->
