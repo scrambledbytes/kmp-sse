@@ -1,6 +1,8 @@
 package cc.scrambledbytes.sse
 
-import cc.scrambledbytes.sse.client.tryConnect
+import cc.scrambledbytes.sse.ReadyState.CLOSED
+import cc.scrambledbytes.sse.ReadyState.CONNECTING
+import cc.scrambledbytes.sse.impl.tryConnect
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
@@ -52,29 +54,77 @@ internal const val LF = '\u000A' // U+000A LINE FEED (LF)
 
 //https://developer.mozilla.org/en-US/docs/Web/API/EventSource
 // https://html.spec.whatwg.org/multipage/server-sent-events.html#server-sent-events
-class SseEventSource(
-    internal val url: String,
-    private val withCredentials: Boolean = false, // TODO
+
+
+/**
+ * SSE event source
+ *
+ * url: the URL providing the event stream.
+ * readyState: the state of this EventSource object's connection.
+ * withCredentials:
+ */
+interface SseEventSource {
+    val url: String
+    val withCredentials: Boolean
+
+    fun open()
+
+    /**
+     * Aborts any instances of the fetch algorithm started for this EventSource object,
+     * and sets the readyState attribute to CLOSED.
+     */
+    fun close()
+
+    val events: Flow<SseEvent>
+
+    val state: Flow<State>
+
+    data class State(
+        val ready: ReadyState = CONNECTING,
+        val isFailed: Boolean = false,
+        val status: Int = -1,
+    )
+}
+
+enum class ReadyState(val value: UShort) {
+    CONNECTING(0u),
+    OPEN(1u),
+    CLOSED(2u),
+}
+
+class SseEventSourceImpl( // needs to be different due to name clash in JS
+    override val url: String,
+    override val withCredentials: Boolean = false, //
     internal var reconnectionTime: Duration = 10.seconds,
     internal val provider: SseEventStream.Provider,
-    private val context: CoroutineContext = Job()
-) {
-    fun connect() {
+    context: CoroutineContext = Job()
+) : SseEventSource {
+    override fun open() {
         tryConnect()
     }
 
-    fun disconnect() {
-        close()
+    override fun close() {
+        resetBuffer()
+        supervisor.cancelChildren()
+        readyState = CLOSED
     }
 
-    val events: Flow<SseEvent>
+    internal var readyState: ReadyState
+        get() = _state.value.ready
+        set(value) {
+            _state.value = _state.value.copy(ready = value)
+        }
+
+    override val events: Flow<SseEvent>
         get() = _messages
 
 
-    internal val _readyState = MutableStateFlow(ReadyState.CONNECTING)
-    val state: Flow<ReadyState>
-        get() = _readyState
+    internal val _state = MutableStateFlow(SseEventSource.State())
+    override val state: Flow<SseEventSource.State>
+        get() = _state
 
+    val isFailed: Boolean
+        get() = false
 
     internal var lastEventId: String = "" //  This must initially be the empty string.
     internal var buffer = SseBuffer()
@@ -92,18 +142,6 @@ class SseEventSource(
 
     internal fun resetBuffer() {
         buffer = SseBuffer()
-    }
-
-    internal fun close() {
-        resetBuffer()
-        supervisor.cancelChildren()
-        _readyState.value = ReadyState.CLOSED
-    }
-
-    enum class ReadyState(val value: UShort) {
-        CONNECTING(0u),
-        OPEN(1u),
-        CLOSED(2u),
     }
 }
 

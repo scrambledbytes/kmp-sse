@@ -5,6 +5,7 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.util.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.*
@@ -13,7 +14,10 @@ class KtorSseEventStreamProvider(
     private val client: HttpClient //TODO more generic ?
 ) : SseEventStream.Provider {
 
-    override suspend fun create(url: String, lastEventId: String?): SseEventStream {
+    override suspend fun create(
+        url: String,
+        lastEventId: String?
+    ): SseEventStream {
         // TODO parse url
         println("Connecting: $url, $lastEventId")
 
@@ -42,8 +46,8 @@ class KtorSseEventStreamProvider(
                         SseEventStream.State(
                             status = response.status.value,
                             contentType = getContentType(response),
-                            isAborted = false,
-                            isError = !response.status.isSuccess()
+                            isAborted = response.status == HttpStatusCode.NoContent,
+                            error = null,
                         )
                     )
 

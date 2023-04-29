@@ -6,14 +6,16 @@ suspend fun main() {
     val http = HttpClient()
     val provider = KtorSseEventStreamProvider(http)
 
-    val client = SseEventSource(
+    val client = SseEventSourceImpl(
         url = "http://0.0.0.0:8080/sse",
         provider = provider,
     )
 
-    client.connect()
+    client.open()
 
     client.events.collect {
         println("Got event: $it")
     }
+
+    //client.close()
 }

@@ -5,11 +5,16 @@ import kotlinx.coroutines.flow.*
 
 // closed event streams should be re-connected
 // failed event stream should not be re-connected
+
+
+/**
+ * Transforms the text stream
+ */
 class SseEventStream(
     private val onClose: () -> Unit, // closes the event stream
     private val onExecute: suspend (
-            (State) -> Unit,
-            suspend (String) -> Unit,
+        onState: (State) -> Unit,
+        onLine: suspend (String) -> Unit,
     ) -> Unit, // executes the wrapped request
 ) {
     private val _events: MutableSharedFlow<String> = MutableSharedFlow(
@@ -18,10 +23,9 @@ class SseEventStream(
         onBufferOverflow = BufferOverflow.SUSPEND,
     )
 
-    val state = MutableStateFlow<State?>(null)
+    internal val state = MutableStateFlow<State?>(null)
     val events: Flow<String>
         get() = _events
-
 
     private fun onState(newState: State) {
         state.value = newState
@@ -38,7 +42,7 @@ class SseEventStream(
             return safeState.isError && !isFailed
         }
 
-    val isFailed: Boolean
+    internal val isFailed: Boolean
         get() { // -> fail the connection
             val safeState = state.value
 
@@ -59,22 +63,25 @@ class SseEventStream(
         onExecute(::onState, ::onLine)
     }
 
-    fun fireError() {
-        //TODO onError("state: ${state.value}")
-    }
-
     data class State(
         val status: Int,
         val contentType: String,
         val isAborted: Boolean,
-        val isError: Boolean
-    )
+        val error: Throwable? = null,
+    ) {
+        val isError: Boolean by lazy {
+            error != null
+        }
+    }
 
     // TODO document
     fun interface Provider {
         /**
          * Let lastEventId be the EventSource object's last event ID string, encoded as UTF-8. Set (`Last-Event-ID`, lastEventIDValue) in request's header list.
          */
-        suspend fun create(url: String, lastEventId: String?): SseEventStream
+        suspend fun create(
+            url: String,
+            lastEventId: String?
+        ): SseEventStream
     }
 }

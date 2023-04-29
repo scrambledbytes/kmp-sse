@@ -1,4 +1,4 @@
-package cc.scrambledbytes.sse.client
+package cc.scrambledbytes.sse.impl
 
 import cc.scrambledbytes.sse.SseEventSource
 import cc.scrambledbytes.sse.SseEventStream
@@ -11,6 +11,6 @@ import cc.scrambledbytes.sse.SseEventStream
 internal fun SseEventSource.handleFail(
     newSource: SseEventStream
 ) {
-    newSource.fireError()
+    // TODO fire error newSource.fireError()
     close()
 }
