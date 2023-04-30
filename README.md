@@ -6,12 +6,10 @@ SSE implementation for Kotlin Multiplatform
 # TODO
 
 ## functionality
-* client factory
 * targets for ktor provider
-* check API + module names
  
 ## testing
-* tests: client-core
+* tests: sse-event-source
 * tests: for SseLineStream provider
 
 ## deployment
@@ -20,4 +18,5 @@ SSE implementation for Kotlin Multiplatform
 * documentation - examples 
 * publish
 
-    
+# TODO Later / separate project 
+* connection provider?

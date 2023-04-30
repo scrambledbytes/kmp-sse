@@ -4,7 +4,6 @@ package cc.scrambledbytes.sse
 value class SseLine(
     val value: String
 ) {
-
     val isDispatch: Boolean
         get() = value.isBlank()
 
@@ -12,5 +11,5 @@ value class SseLine(
         get() = value.startsWith(":")
 
     val isProcessField: Boolean
-        get() = ":" in value
+        get() = ":" in value && !isIgnore
 }
