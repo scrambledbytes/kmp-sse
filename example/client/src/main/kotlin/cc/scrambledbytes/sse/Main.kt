@@ -6,10 +6,10 @@ import kotlinx.coroutines.launch
 
 suspend fun main() {
     val http = HttpClient()
-    val provider = KtorSseEventStreamProvider(http)
+    val provider: SseLineStream.Provider = KtorSseEventStreamProvider(http)
 
-    val client = SseEventSourceImpl(
-        urlString = "http://0.0.0.0:8080/sse-301",
+    val client = SseEventSource(
+        url = "http://0.0.0.0:8080/sse-301",
         provider = provider,
     )
 

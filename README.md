@@ -6,8 +6,6 @@ SSE implementation for Kotlin Multiplatform
 # TODO
 
 ## functionality
-* check last connected id
- 
 * client factory
 * targets for ktor provider
 * check API + module names

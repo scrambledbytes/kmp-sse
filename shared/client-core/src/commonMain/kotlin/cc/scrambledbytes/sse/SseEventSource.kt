@@ -62,15 +62,38 @@ enum class ReadyState(val value: UShort) {
     CLOSED(2u),
 }
 
-class SseEventSourceImpl( // needs to be different due to name clash in JS
+fun SseEventSource(
+    url: String,
+    provider: SseLineStream.Provider,
+    context: CoroutineContext = Job(),
+    withCredentials: Boolean = false,
+    delayProvider: (Int) -> Duration = { 10.seconds },
+    isStreamFailed: (SseLineStream.ConnectionState) -> Boolean = { false },
+    isFatalError: (Throwable) -> Boolean = { false },
+    isConnectedProvider: (() -> Flow<Boolean>)? = null,
+): SseEventSource =
+    SseEventSourceImpl(
+        urlString = url,
+        provider = provider,
+        context = context,
+        withCredentials = withCredentials,
+        delayProvider = delayProvider,
+        isStreamFailed = isStreamFailed,
+        isFatalError = isFatalError,
+        isConnectedProvider = isConnectedProvider,
+    )
+
+
+internal class SseEventSourceImpl(
+    // needs to be different due to name clash in JS
     urlString: String,
     internal val provider: SseLineStream.Provider,
-    context: CoroutineContext = Job(),
-    override val withCredentials: Boolean = false,
-    internal var delayProvider: (Int) -> Duration = { 10.seconds },
-    internal val isStreamFailed: (SseLineStream.ConnectionState) -> Boolean = { false },
-    internal val isFatalError: (Throwable) -> Boolean = { false },
-    internal val isConnectedProvider: (() -> Flow<Boolean>)? = null
+    context: CoroutineContext,
+    override val withCredentials: Boolean,
+    internal var delayProvider: (Int) -> Duration,
+    internal val isStreamFailed: (SseLineStream.ConnectionState) -> Boolean,
+    internal val isFatalError: (Throwable) -> Boolean,
+    internal val isConnectedProvider: (() -> Flow<Boolean>)?,
 ) : SseEventSource {
     internal var connectionAttempt: Int = 0
     internal var reconnectionTime: Duration? = null

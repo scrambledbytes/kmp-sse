@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-fun SseEventSourceImpl.handleDelayedConnectionAttempt() {
+internal fun SseEventSourceImpl.handleDelayedConnectionAttempt() {
     _state.value = _state.value.copy(
         ready = CONNECTING
     )
