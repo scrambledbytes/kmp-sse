@@ -1,6 +1,5 @@
 package cc.scrambledbytes.sse.impl
 
-import cc.scrambledbytes.sse.ReadyState
 import cc.scrambledbytes.sse.ReadyState.CLOSED
 import cc.scrambledbytes.sse.ReadyState.OPEN
 import cc.scrambledbytes.sse.SseEventSourceImpl

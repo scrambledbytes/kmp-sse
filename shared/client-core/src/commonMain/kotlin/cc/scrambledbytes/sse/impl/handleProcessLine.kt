@@ -18,12 +18,14 @@ internal suspend fun SseEventSourceImpl.handleProcessLine(
                 value.removePrefix(" "), //If value starts with a U+0020 SPACE character, remove it from value.
             )
         }
+
         else -> processField(name = line.value, fieldValue = "")
     }
 }
 
 private fun SseEventSourceImpl.processField(
-    name: String, fieldValue: String) {
+    name: String, fieldValue: String
+) {
     when (name) {
         "event" -> handleEvent(fieldValue)
         "data" -> handleData(fieldValue)

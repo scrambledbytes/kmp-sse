@@ -14,6 +14,6 @@ fun Application.module() {
     configureRouting()
 }
 
-fun Any.debugTrace(message:String) {
+fun Any.debugTrace(message: String) {
     println("[${this::class.simpleName}] $message")
 }

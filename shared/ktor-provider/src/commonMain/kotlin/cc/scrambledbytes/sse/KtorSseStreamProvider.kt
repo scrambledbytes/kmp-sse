@@ -11,7 +11,7 @@ import io.ktor.http.HttpHeaders.Accept
 import io.ktor.http.HttpHeaders.CacheControl
 import io.ktor.util.*
 import io.ktor.utils.io.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Job
 
 private val WITH_CREDENTIALS by lazy { AttributeKey<String>("withCredentials") }
 private val INITIATOR by lazy { AttributeKey<String>("initiator") }

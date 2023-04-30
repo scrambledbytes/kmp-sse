@@ -3,13 +3,13 @@ package cc.scrambledbytes.sse
 import cc.scrambledbytes.sse.ReadyState.CLOSED
 import cc.scrambledbytes.sse.ReadyState.CONNECTING
 import cc.scrambledbytes.sse.impl.*
-import cc.scrambledbytes.sse.impl.handleConnected
-import cc.scrambledbytes.sse.impl.handleError
-import cc.scrambledbytes.sse.impl.handleConnect
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
