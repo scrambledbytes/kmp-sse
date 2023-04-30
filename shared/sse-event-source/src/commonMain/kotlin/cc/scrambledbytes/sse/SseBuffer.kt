@@ -2,8 +2,8 @@ package cc.scrambledbytes.sse
 
 internal data class SseBuffer(
     val eventType: String = "",
-    val lastEventId: String = "", // id
     val data: String = "", // data buffer
+    val lastEventId: String? = null, // id
 ) {
     val isEmpty: Boolean by lazy {
         data.isBlank()
