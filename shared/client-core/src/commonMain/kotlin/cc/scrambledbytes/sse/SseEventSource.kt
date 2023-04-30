@@ -64,17 +64,17 @@ enum class ReadyState(val value: UShort) {
 
 fun SseEventSource(
     url: String,
-    provider: SseLineStream.Provider,
+    streamProvider: SseLineStream.Provider,
     context: CoroutineContext = Job(),
     withCredentials: Boolean = false,
     delayProvider: (Int) -> Duration = { 10.seconds },
     isStreamFailed: (SseLineStream.ConnectionState) -> Boolean = { false },
     isFatalError: (Throwable) -> Boolean = { false },
-    isConnectedProvider: (() -> Flow<Boolean>)? = null,
+    isConnectedProvider: (suspend () -> Flow<Boolean>)? = null,
 ): SseEventSource =
     SseEventSourceImpl(
         urlString = url,
-        provider = provider,
+        provider = streamProvider,
         context = context,
         withCredentials = withCredentials,
         delayProvider = delayProvider,
@@ -93,7 +93,7 @@ internal class SseEventSourceImpl(
     internal var delayProvider: (Int) -> Duration,
     internal val isStreamFailed: (SseLineStream.ConnectionState) -> Boolean,
     internal val isFatalError: (Throwable) -> Boolean,
-    internal val isConnectedProvider: (() -> Flow<Boolean>)?,
+    internal val isConnectedProvider: (suspend () -> Flow<Boolean>)?,
 ) : SseEventSource {
     internal var connectionAttempt: Int = 0
     internal var reconnectionTime: Duration? = null

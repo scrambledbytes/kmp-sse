@@ -2,7 +2,7 @@ plugins {
     id(libs.plugins.kotlin.multiplatform)
 }
 
-group = "cc.scrambledbytes"
+group = "cc.scrambledbytes.sse"
 version = "1.0-SNAPSHOT"
 
 kotlin {
