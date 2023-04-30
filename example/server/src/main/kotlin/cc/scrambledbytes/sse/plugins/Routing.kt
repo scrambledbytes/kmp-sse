@@ -2,6 +2,9 @@ package cc.scrambledbytes.sse.plugins
 
 import cc.scrambledbytes.sse.debugTrace
 import io.ktor.http.*
+import io.ktor.http.HttpHeaders.Location
+import io.ktor.http.HttpStatusCode.Companion.MovedPermanently
+import io.ktor.http.HttpStatusCode.Companion.Unauthorized
 import io.ktor.server.routing.*
 import io.ktor.server.response.*
 import io.ktor.server.application.*
@@ -36,7 +39,11 @@ fun Application.configureRouting() {
         }
 
         get("/sse-401") {
-            call.respond(HttpStatusCode.Unauthorized)
+            call.respond(Unauthorized)
+        }
+
+        get("/sse-301") {
+            call.respondRedirect("/sse", permanent = true)
         }
 
         get("/sse-500") {

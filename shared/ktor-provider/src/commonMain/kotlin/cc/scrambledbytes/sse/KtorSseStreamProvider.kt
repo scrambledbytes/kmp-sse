@@ -34,7 +34,6 @@ class KtorSseEventStreamProvider(
 
         var job: Job? = null
 
-
         val statement = client.prepareGet(url.value) {
             headers {
                 set(CacheControl, NO_STORE)

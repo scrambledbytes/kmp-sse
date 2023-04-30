@@ -9,8 +9,9 @@ suspend fun main() {
     val provider = KtorSseEventStreamProvider(http)
 
     val client = SseEventSourceImpl(
-        url = "http://0.0.0.0:8080/sse-500",
+        urlString = "http://0.0.0.0:8080/sse-301",
         provider = provider,
+
     )
 
     client.open()
