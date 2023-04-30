@@ -9,8 +9,7 @@ java {
 }
 
 dependencies {
-    implementation(project(":shared:client-core"))
-    implementation(project(":shared:ktor-provider"))
+    implementation(project(":shared:ktor-stream-provider"))
     implementation(libs.ktor.client.apache5)
 
 //    testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
