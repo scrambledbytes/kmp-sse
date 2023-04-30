@@ -1,6 +1,7 @@
 package cc.scrambledbytes.sse.impl
 
 import cc.scrambledbytes.sse.ReadyState
+import cc.scrambledbytes.sse.ReadyState.CLOSED
 import cc.scrambledbytes.sse.ReadyState.OPEN
 import cc.scrambledbytes.sse.SseEventSourceImpl
 import cc.scrambledbytes.sse.SseLine
@@ -28,7 +29,7 @@ private fun SseEventSourceImpl.handleFail(
     state: SseLineStream.ConnectionState
 ) {
     _state.value = _state.value.copy(
-        ready = ReadyState.CLOSED,
+        ready = CLOSED,
         isFailed = true,
         statusCode = state.statusCode
     )
@@ -40,7 +41,7 @@ private suspend fun SseEventSourceImpl.handleRetryConnection(
     streamState: SseLineStream.ConnectionState
 ) {
     _state.value = _state.value.copy(
-        ready = ReadyState.CLOSED,
+        ready = CLOSED,
         isFailed = streamState.isFailed,
         statusCode = streamState.statusCode,
     )

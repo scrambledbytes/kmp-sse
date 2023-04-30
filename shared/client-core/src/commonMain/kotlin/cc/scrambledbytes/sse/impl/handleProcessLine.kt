@@ -80,3 +80,4 @@ private fun SseEventSourceImpl.handleRetry(
 
     reconnectionTime = newReconnectionTime.milliseconds
 }
+

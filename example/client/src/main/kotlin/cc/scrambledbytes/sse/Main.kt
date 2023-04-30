@@ -11,7 +11,6 @@ suspend fun main() {
     val client = SseEventSourceImpl(
         urlString = "http://0.0.0.0:8080/sse-301",
         provider = provider,
-
     )
 
     client.open()

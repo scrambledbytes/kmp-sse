@@ -1,5 +1,6 @@
 package cc.scrambledbytes.sse.impl
 
+
 import cc.scrambledbytes.sse.ReadyState.CONNECTING
 import cc.scrambledbytes.sse.SseEventSourceImpl
 import cc.scrambledbytes.sse.SseEventSourceImpl.Intent.Connect
@@ -19,7 +20,7 @@ fun SseEventSourceImpl.handleDelayedConnectionAttempt() {
         delay(duration = reconnectionTime ?: delayProvider(connectionAttempt))
 
         waitForInternetConnection()
-        
+
         schedule(Connect)
     }
 }

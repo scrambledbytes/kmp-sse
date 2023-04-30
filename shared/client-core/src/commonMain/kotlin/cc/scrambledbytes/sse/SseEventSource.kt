@@ -14,7 +14,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-internal const val LF = '\u000A' // U+000A LINE FEED (LF) // TODO check if we can use Char LF
+internal const val LF = '\u000A' // U+000A LINE FEED (LF)
 
 //https://developer.mozilla.org/en-US/docs/Web/API/EventSource
 // https://html.spec.whatwg.org/multipage/server-sent-events.html#server-sent-events
@@ -83,7 +83,7 @@ class SseEventSourceImpl( // needs to be different due to name clash in JS
 
     private val intentScope: CoroutineScope = CoroutineScope(context = context)
     private val channel = Channel<Intent>(capacity = Channel.UNLIMITED)
-    private val intentJob: Job = intentScope.launch {
+    internal val intentJob: Job = intentScope.launch {
         channel.consumeAsFlow()
             .collect { handleIntent(it) }
     }

@@ -69,8 +69,8 @@ class SseLineStream(
         val contentType: String,
         val isAborted: Boolean,
     ) {
-        val isError: Boolean by lazy {
-            statusCode != 200 // TODO handle 301 / 307
+        private val isError: Boolean by lazy {
+            statusCode != 200
         }
 
         val isRetry: Boolean by lazy {
@@ -89,7 +89,6 @@ class SseLineStream(
         }
     }
 
-    // TODO document
     interface Provider {
         /**
          * Let lastEventId be the EventSource object's last event ID string, encoded as UTF-8. Set (`Last-Event-ID`, lastEventIDValue) in request's header list.

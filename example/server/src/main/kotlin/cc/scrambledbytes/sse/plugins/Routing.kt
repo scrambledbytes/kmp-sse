@@ -18,22 +18,21 @@ fun Application.configureRouting() {
             try {
                 debugTrace("Responding")
                 call.respondTextWriter(contentType = ContentType.Text.EventStream) {
-                    while(true) {
+                    while (true) {
                         delay(3_000)
 
                         val event = RandomSseEvent()
                         debugTrace("Writing $event")
+                        write("id: ${event.id}\n")
                         write("event: ${event.type}\n")
                         write("data: ${event.data}\n") // TODO multiline data
-                        write("")
+                        write("\n")
                         flush()
                     }
                 }
-            }
-            catch (e:Exception) {
+            } catch (e: Exception) {
                 debugTrace("Channel closed: ${e.message}")
-            }
-            finally {
+            } finally {
                 debugTrace("Shutting down channel")
             }
         }
@@ -52,11 +51,15 @@ fun Application.configureRouting() {
     }
 }
 
-fun RandomSseEvent():SseEvent {
-    return SseEvent(type = "test", data="data - ${System.currentTimeMillis()}")
+var count: Int = 0
+
+fun RandomSseEvent(): SseEvent {
+    return SseEvent(id = count++, type = "test", data = "data - ${System.currentTimeMillis()}")
 }
 
+
 data class SseEvent(
+    val id: Int,
     val type: String,
     val data: String,
 )
