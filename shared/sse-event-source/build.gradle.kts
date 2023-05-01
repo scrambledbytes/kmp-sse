@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "cc.scrambledbytes.sse"
-version = "1.0-SNAPSHOT"
+version = "1.0-SNAPSHOT" // TODO extract
 
 kotlin {
     jvm {
@@ -21,6 +21,7 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
         val jvmMain by getting {

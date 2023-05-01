@@ -48,6 +48,10 @@ class FakeSseLineStreamProvider : SseLineStream.Provider {
     }
 
     companion object {
-        val initialState = SseLineStream.ConnectionState(-1, "", false)
+        val initialState = SseLineStream.ConnectionState(
+            statusCode = -1,
+            contentType = "",
+            isAborted = false
+        )
     }
 }

@@ -1,12 +1,13 @@
 package cc.scrambledbytes.sse
 
 import cc.scrambledbytes.sse.mock.FakeSseLineStreamProvider
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 
-private const val VALID_URL = "https://test.com"
-private const val INVALID_URL = "please crash"
+internal const val VALID_URL = "https://test.com"
+internal const val INVALID_URL = "please crash"
 
 /**
  * Template for testing a provider implementation.
@@ -29,4 +30,4 @@ abstract class AbstractSseLineStreamProviderTests(
 }
 
 
-class RealTests:AbstractSseLineStreamProviderTests(FakeSseLineStreamProvider())
+class RealTests : AbstractSseLineStreamProviderTests(FakeSseLineStreamProvider())
