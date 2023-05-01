@@ -6,7 +6,6 @@ import cc.scrambledbytes.sse.SseEventSourceImpl
 import cc.scrambledbytes.sse.SseEventSourceImpl.Intent.ConnectDelayed
 import cc.scrambledbytes.sse.SseLine
 import cc.scrambledbytes.sse.SseLineStream
-import cc.scrambledbytes.sse.util.debugTrace
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
@@ -14,7 +13,6 @@ internal suspend fun SseEventSourceImpl.handleConnected(
     intent: SseEventSourceImpl.Intent.Connected
 ) {
     val state = intent.state
-    debugTrace("Handle connected: $state")
     when {
         state.isFailed || isStreamFailed(state) -> handleFail(state)
         state.isRetry -> handleRetryConnection(state)

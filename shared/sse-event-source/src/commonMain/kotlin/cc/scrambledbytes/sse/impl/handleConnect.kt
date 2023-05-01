@@ -3,12 +3,10 @@ package cc.scrambledbytes.sse.impl
 import cc.scrambledbytes.sse.ReadyState.CLOSED
 import cc.scrambledbytes.sse.SseEventSourceImpl
 import cc.scrambledbytes.sse.SseLineStream
-import cc.scrambledbytes.sse.util.debugTrace
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 internal suspend fun SseEventSourceImpl.handleConnect() {
-    debugTrace("tryConnect")
     val stream = createStream()
         ?: return
 
@@ -19,7 +17,6 @@ internal suspend fun SseEventSourceImpl.handleConnect() {
 
         waitForConnection(stream)
     }.invokeOnCompletion {
-        debugTrace("Line stream completed($it), cleanup in $stream")
         stream.close()
     }
 }
@@ -30,7 +27,6 @@ private suspend fun SseEventSourceImpl.waitForConnection(
     stream.state // this will change at most once
         .filterNotNull()
         .collect {
-            debugTrace("Connected to SseLineStream: $it")
             schedule(SseEventSourceImpl.Intent.Connected(it, stream.lines))
         }
 }
@@ -41,7 +37,6 @@ private suspend fun SseEventSourceImpl.connectStream(
     try {
         source.connect()
     } catch (e: Exception) {
-        debugTrace("Failed connection: $e")
         schedule(SseEventSourceImpl.Intent.HandleError(source, e))
     }
 }

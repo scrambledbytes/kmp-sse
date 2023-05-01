@@ -2,7 +2,6 @@ package cc.scrambledbytes.sse.impl
 
 import cc.scrambledbytes.sse.ReadyState.CLOSED
 import cc.scrambledbytes.sse.SseEventSourceImpl
-import cc.scrambledbytes.sse.util.debugTrace
 
 internal suspend fun SseEventSourceImpl.handleDispatch() {
     // 1 Set the last event ID string of the event source to the value of the last event ID buffer. The buffer does not get reset, so the last event ID string of the event source remains set to this value until the next time it is set by the server.
@@ -30,7 +29,5 @@ internal suspend fun SseEventSourceImpl.handleDispatch() {
     // 8 Queue a task which, if the readyState attribute is set to a value other than CLOSED, dispatches the newly created event at the EventSource object.
     if (readyState != CLOSED) {
         _messages.emit(message)
-    } else {
-        debugTrace("Omit message: $message")
     }
 }

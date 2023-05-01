@@ -1,6 +1,5 @@
 package cc.scrambledbytes.sse
 
-import cc.scrambledbytes.sse.util.debugTrace
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -30,8 +29,6 @@ class KtorSseEventStreamProvider(
         lastEventId: String?,
         withCredentials: Boolean,
     ): SseLineStream {
-        debugTrace("Connecting: $url, $lastEventId")
-
         var job: Job? = null
 
         val statement = client.prepareGet(url.value) {
@@ -51,12 +48,10 @@ class KtorSseEventStreamProvider(
 
         return SseLineStream(
             onClose = {
-                debugTrace("Closing SSE event stream")
                 job?.cancel()
             },
             onConnect = { onConnected, onLine ->
                 statement.execute { response ->
-                    debugTrace("Got response: $response")
                     onConnected(
                         SseLineStream.ConnectionState(
                             statusCode = response.status.value,

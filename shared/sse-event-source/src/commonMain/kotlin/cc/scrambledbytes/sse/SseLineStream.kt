@@ -1,6 +1,5 @@
 package cc.scrambledbytes.sse
 
-import cc.scrambledbytes.sse.util.debugTrace
 import kotlinx.coroutines.channels.BufferOverflow.SUSPEND
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -60,7 +59,6 @@ class SseLineStream(
     }
 
     fun close() {
-        debugTrace("close")
         onClose()
     }
 
