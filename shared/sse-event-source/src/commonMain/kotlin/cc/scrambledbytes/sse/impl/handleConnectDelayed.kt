@@ -1,6 +1,7 @@
 package cc.scrambledbytes.sse.impl
 
 
+import cc.scrambledbytes.sse.ReadyState.CLOSED
 import cc.scrambledbytes.sse.ReadyState.CONNECTING
 import cc.scrambledbytes.sse.SseEventSourceImpl
 import cc.scrambledbytes.sse.SseEventSourceImpl.Intent.Connect
@@ -17,11 +18,18 @@ internal fun SseEventSourceImpl.handleDelayedConnectionAttempt() {
     lineScope.launch {
         connectionAttempt++
 
-        delay(duration = reconnectionTime ?: delayProvider(connectionAttempt))
+        val providedDelay = delayProvider(connectionAttempt)
 
-        waitForInternetConnection()
-
-        schedule(Connect)
+        if (providedDelay == null) {
+            _state.value = _state.value.copy(
+                ready = CLOSED
+            )
+            close()
+        } else {
+            delay(duration = reconnectionTime ?: providedDelay)
+            waitForInternetConnection()
+            schedule(Connect)
+        }
     }
 }
 
