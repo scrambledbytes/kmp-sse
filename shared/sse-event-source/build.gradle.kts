@@ -2,7 +2,7 @@ plugins {
     id(libs.plugins.kotlin.multiplatform)
 }
 
-group = "cc.scrambledbytes.sse"
+group = libs.versions.kmp.sse.group.get()
 version = libs.versions.kmp.sse.event.source.get()
 
 kotlin {
