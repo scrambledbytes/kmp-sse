@@ -1,7 +1,9 @@
 package cc.scrambledbytes.sse
 
 import cc.scrambledbytes.sse.mock.FakeSseLineStreamProvider
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
+import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -13,8 +15,15 @@ internal const val INVALID_URL = "please crash"
  * Template for testing a provider implementation.
  */
 abstract class AbstractSseLineStreamProviderTests(
+    val url: String,
     open val provider: SseLineStream.Provider
 ) {
+    lateinit var source: SseEventSource
+
+    @Before
+    fun setup() {
+        source = SseEventSource(url, provider)
+    }
 
     @Test
     fun testParseValid() {
@@ -27,7 +36,22 @@ abstract class AbstractSseLineStreamProviderTests(
             provider.parse(INVALID_URL)
         }
     }
+
+    @Test
+    fun testProviderPostsConnectionStateWhenConnected() = runBlocking {
+        source.open()
+
+        source.state.collect {
+            
+        }
+
+
+
+
+    }
 }
 
-
-class RealTests : AbstractSseLineStreamProviderTests(FakeSseLineStreamProvider())
+class RealTests : AbstractSseLineStreamProviderTests(
+    provider = FakeSseLineStreamProvider(),
+    url = VALID_URL
+)
