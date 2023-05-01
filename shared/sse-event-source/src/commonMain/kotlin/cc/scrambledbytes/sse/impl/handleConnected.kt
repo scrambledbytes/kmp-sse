@@ -3,6 +3,7 @@ package cc.scrambledbytes.sse.impl
 import cc.scrambledbytes.sse.ReadyState.CLOSED
 import cc.scrambledbytes.sse.ReadyState.OPEN
 import cc.scrambledbytes.sse.SseEventSourceImpl
+import cc.scrambledbytes.sse.SseEventSourceImpl.Intent.ConnectDelayed
 import cc.scrambledbytes.sse.SseLine
 import cc.scrambledbytes.sse.SseLineStream
 import cc.scrambledbytes.sse.util.debugTrace
@@ -48,7 +49,7 @@ private suspend fun SseEventSourceImpl.handleRetryConnection(
     )
     stop()
 
-    schedule(SseEventSourceImpl.Intent.ConnectDelayed)
+    schedule(ConnectDelayed)
 }
 
 private suspend fun SseEventSourceImpl.handleOpen(

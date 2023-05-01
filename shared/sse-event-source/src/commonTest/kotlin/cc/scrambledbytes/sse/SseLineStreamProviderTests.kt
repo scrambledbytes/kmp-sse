@@ -1,8 +1,6 @@
 package cc.scrambledbytes.sse
 
 import cc.scrambledbytes.sse.mock.FakeSseLineStreamProvider
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals

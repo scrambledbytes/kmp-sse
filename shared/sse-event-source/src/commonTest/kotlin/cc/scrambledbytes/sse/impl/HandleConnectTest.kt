@@ -1,7 +1,6 @@
 package cc.scrambledbytes.sse.impl
 
 import app.cash.turbine.test
-import cc.scrambledbytes.sse.ReadyState
 import cc.scrambledbytes.sse.ReadyState.CLOSED
 import cc.scrambledbytes.sse.SseEventSource
 import cc.scrambledbytes.sse.SseLineStream

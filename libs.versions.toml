@@ -10,6 +10,7 @@ kotlinx-coroutines = "1.6.4"
 ktor-version = "2.3.0"
 logback-version = "1.2.11"
 
+
 # iOS
 # JS
 
@@ -30,6 +31,7 @@ ktor-server-core-jvm = { module = "io.ktor:ktor-server-core-jvm", version.ref = 
 ktor-server-netty-jvm = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor-version" }
 ktor-server-tests-jvm = { module = "io.ktor:ktor-server-tests-jvm", version.ref = "ktor-version" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback-version" }
+cash-turbine = { module = "app.cash.turbine:turbine", version = "0.12.3" }
 
 #                                       Bundles
 ################################################################################################

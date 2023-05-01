@@ -3,6 +3,7 @@ package cc.scrambledbytes.sse.mock
 import cc.scrambledbytes.sse.SseLine
 import cc.scrambledbytes.sse.SseLineStream
 import cc.scrambledbytes.sse.SseUrl
+import cc.scrambledbytes.sse.util.debugTrace
 
 class FakeSseLineStreamProvider : SseLineStream.Provider {
     var createVisitedWithLastEventId: String? = null
@@ -16,6 +17,7 @@ class FakeSseLineStreamProvider : SseLineStream.Provider {
     var connectionState: SseLineStream.ConnectionState = initialState
 
     fun onClose() {
+        debugTrace("onClose")
         onCloseVisited = true
     }
 
