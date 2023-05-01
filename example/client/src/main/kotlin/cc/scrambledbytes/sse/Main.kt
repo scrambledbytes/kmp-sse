@@ -14,37 +14,13 @@ suspend fun main() {
     val provider: SseLineStream.Provider = KtorSseEventStreamProvider(http)
 
     val client = SseEventSource(
-        url = "http://0.0.0.0:8080/sse-301",
-        streamProvider = provider,
-        context = Job(), // execution context,
-        withCredentials = false,
-        delayProvider = { attempt ->
-            (2 * attempt).seconds
-        },
-        isStreamFailed = { state ->
-            state.statusCode == 406
-        },
-        isFatalError = {
-            it is SocketTimeoutException
-        },
-        isConnectedProvider = {
-            flow {
-                emit(true)
-            }
-        }
+        url = "http://0.0.0.0:8080/sse",
+        streamProvider = provider
     )
 
     client.open()
 
-    GlobalScope.launch {
-        client.state.collect {
-            println("[Client] Got state: $it")
-        }
-    }
-
     client.events.collect {
         println("[Client] Got event: $it")
     }
-
-    //client.close()
 }

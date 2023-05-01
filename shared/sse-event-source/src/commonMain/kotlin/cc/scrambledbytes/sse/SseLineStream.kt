@@ -20,7 +20,7 @@ import kotlinx.coroutines.sync.withLock
 class SseLineStream(
     private val onClose: () -> Unit, // cleanup hook
     // executes the wrapped request
-    private val onExecute: suspend (
+    private val onConnect: suspend (
         onState: suspend (ConnectionState) -> Unit,
         onLine: suspend (SseLine) -> Unit,
     ) -> Unit,
@@ -65,7 +65,7 @@ class SseLineStream(
     }
 
     suspend fun connect() {
-        onExecute(::onConnected, ::onLine)
+        onConnect(::onConnected, ::onLine)
     }
 
     data class ConnectionState(

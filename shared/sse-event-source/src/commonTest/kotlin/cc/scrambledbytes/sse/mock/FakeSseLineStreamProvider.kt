@@ -46,7 +46,7 @@ class FakeSseLineStreamProvider : SseLineStream.Provider {
 
         return SseLineStream(
             onClose = this::onClose,
-            onExecute = this::onExecute,
+            onConnect = this::onExecute,
         )
     }
 
