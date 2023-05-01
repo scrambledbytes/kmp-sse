@@ -29,5 +29,6 @@ internal suspend fun SseEventSourceImpl.handleError(
     )
     stop()
 
+    // no tasks will be execute when failed
     schedule(ConnectDelayed)
 }

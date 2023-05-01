@@ -10,9 +10,15 @@ tasks.withType<KotlinCompile<*>>().configureEach {
     }
 }
 
+tasks.withType<JavaCompile>().configureEach {
+    targetCompatibility = catalog.version("jvm-target")
+    sourceCompatibility = catalog.version("jvm-target")
+}
+
 // jvm compilation
 tasks.withType<KotlinJvmCompile>().configureEach {
     kotlinOptions {
         jvmTarget = catalog.version("jvm-target")
+
     }
 }

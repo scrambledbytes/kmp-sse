@@ -50,7 +50,6 @@ class FakeSseLineStreamProvider : SseLineStream.Provider {
         )
     }
 
-
     override fun parse(
         url: String
     ): SseUrl {

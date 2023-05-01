@@ -6,11 +6,7 @@ group = "cc.scrambledbytes.sse"
 version = "1.0-SNAPSHOT"
 
 kotlin {
-    jvm {
-        jvmToolchain {
-            languageVersion.set(JavaLanguageVersion.of("17"))
-        }
-    }
+    jvm()
 
     sourceSets {
         val commonMain by getting {
