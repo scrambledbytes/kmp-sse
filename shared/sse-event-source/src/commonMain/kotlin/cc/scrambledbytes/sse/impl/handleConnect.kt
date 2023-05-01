@@ -13,7 +13,6 @@ internal suspend fun SseEventSourceImpl.handleConnect() {
         ?: return
 
     lineScope.launch {
-
         launch {
             connectStream(stream)
         }
@@ -49,7 +48,7 @@ private suspend fun SseEventSourceImpl.connectStream(
 
 private suspend fun SseEventSourceImpl.createStream(): SseLineStream? =
     try {
-        provider.create(url, lastEventId)
+        provider.create(url, lastEventId, withCredentials)
     } catch (e: Exception) {
         _state.value = _state.value.copy(
             ready = CLOSED,

@@ -37,18 +37,6 @@ abstract class AbstractSseLineStreamProviderTests(
         }
     }
 
-    @Test
-    fun testProviderPostsConnectionStateWhenConnected() = runBlocking {
-        source.open()
-
-        source.state.collect {
-            
-        }
-
-
-
-
-    }
 }
 
 class RealTests : AbstractSseLineStreamProviderTests(

@@ -5,6 +5,10 @@ import cc.scrambledbytes.sse.SseLineStream
 import cc.scrambledbytes.sse.SseUrl
 
 class FakeSseLineStreamProvider : SseLineStream.Provider {
+    var createVisitedWithLastEventId: String? = null
+    var createVisitedWithUrl: SseUrl? = null
+    var createVisitedWithCredentials: Boolean? = null
+    var createVisited: Boolean = false
     var onCloseVisited: Boolean = false
     var onExecuteVisited: Boolean = false
     var parseVisited: Boolean = false
@@ -32,11 +36,18 @@ class FakeSseLineStreamProvider : SseLineStream.Provider {
         url: SseUrl,
         lastEventId: String?,
         withCredentials: Boolean
-    ): SseLineStream =
-        SseLineStream(
+    ): SseLineStream {
+        createVisited = true
+        createVisitedWithUrl = url
+        createVisitedWithLastEventId = lastEventId
+        createVisitedWithCredentials = withCredentials
+
+        return SseLineStream(
             onClose = this::onClose,
             onExecute = this::onExecute,
         )
+    }
+
 
     override fun parse(
         url: String

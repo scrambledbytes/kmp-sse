@@ -22,6 +22,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(libs.kotlinx.coroutines.test)
+                implementation("app.cash.turbine:turbine:0.12.3")
             }
         }
         val jvmMain by getting {
