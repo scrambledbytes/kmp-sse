@@ -9,6 +9,8 @@ kotlin-api = "1.8"
 kotlinx-coroutines = "1.6.4"
 ktor-version = "2.3.0"
 logback-version = "1.2.11"
+kmp-sse-event-source = "1.0.0-SNAPSHOT"
+kmp-ktor-stream-provider = "1.0.0-SNAPSHOT"
 
 # iOS
 # JS

@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "cc.scrambledbytes.sse"
-version = "1.0-SNAPSHOT" // TODO extract
+version = libs.versions.kmp.sse.event.source.get()
 
 kotlin {
     jvm()
@@ -21,8 +21,7 @@ kotlin {
                 implementation(libs.cash.turbine)
             }
         }
-        val jvmMain by getting {
-        }
+        val jvmMain by getting
         val jvmTest by getting
     }
 }

@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ktor-stream-provider-jvm-org.gradle.accessors.dm.LibrariesForLibs$KmpSseVersionAccessors@22728d8e">
+    <output-path>$PROJECT_DIR$/shared/ktor-stream-provider/build/libs</output-path>
+    <root id="archive" name="ktor-stream-provider-jvm-org.gradle.accessors.dm.LibrariesForLibs$KmpSseVersionAccessors@22728d8e.jar">
+      <element id="module-output" name="kmp-sse.shared.ktor-stream-provider.jvmMain" />
+    </root>
+  </artifact>
+</component>

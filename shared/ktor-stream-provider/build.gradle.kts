@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "cc.scrambledbytes.sse"
-version = "1.0-SNAPSHOT"
+version = libs.versions.kmp.ktor.stream.provider.get()
 
 kotlin {
     jvm()

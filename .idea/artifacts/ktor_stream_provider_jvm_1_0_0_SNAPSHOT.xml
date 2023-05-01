@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ktor-stream-provider-jvm-1.0.0-SNAPSHOT">
+    <output-path>$PROJECT_DIR$/shared/ktor-stream-provider/build/libs</output-path>
+    <root id="archive" name="ktor-stream-provider-jvm-1.0.0-SNAPSHOT.jar">
+      <element id="module-output" name="kmp-sse.shared.ktor-stream-provider.jvmMain" />
+    </root>
+  </artifact>
+</component>
