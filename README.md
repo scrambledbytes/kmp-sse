@@ -1,27 +1,16 @@
-# kmp-sse
+# Kotlin Multiplatform SSE  
 
-SSE implementation for Kotlin Multiplatform
+Extensible Kotlin Multiplatform implementation of Server Sent Events(Sse)
 
-# Protocol: https://html.spec.whatwg.org/multipage/server-sent-events.html#sse-processing-model
+# Overview
 
-# TODO
+# Usage:
 
-## functionality
+TODO
 
-* targets for ktor provider
+# License
+Apache 2.0
 
-## testing
+# Resources
 
-* tests: sse-event-source
-* tests: for SseLineStream provider
-
-## deployment
-
-* remove debug trace
-* documentation - write own provider
-* documentation - examples
-* publish
-
-# TODO Later
-
-* connection provider? (separate project)
+* [SSE Specification](https://html.spec.whatwg.org/multipage/server-sent-events.html#sse-processing-model)
