@@ -11,8 +11,8 @@ ktor-version = "2.3.0"
 logback-version = "1.2.11"
 
 kmp-sse-group = "cc.scrambledbytes.sse"
-kmp-sse-event-source = "1.0.0-SNAPSHOT"
-kmp-ktor-stream-provider = "1.0.0-SNAPSHOT"
+kmp-sse-event-source = "0.0.1-SNAPSHOT"
+kmp-ktor-stream-provider = "0.0.1-SNAPSHOT"
 
 # iOS
 # JS

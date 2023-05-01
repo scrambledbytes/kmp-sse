@@ -1,5 +1,6 @@
 plugins {
     id(libs.plugins.kotlin.multiplatform)
+    `publishing-conventions`
 }
 
 group = libs.versions.kmp.sse.group.get()
