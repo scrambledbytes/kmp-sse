@@ -4,19 +4,11 @@ plugins {
 }
 
 publishing {
-
-
     publications.withType<MavenPublication> {
         repositories {
-
-
             maven {
-
-
-//                url = uri("https://s01.oss.sonatype.org/service/local/")
                 name = "sonatype"
-
-                url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+                url = uri(publishRepo())
                 credentials {
                     username = properties["sonatype.user"].toString()
                     password = properties["sonatype.password"].toString()
