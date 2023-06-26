@@ -3,8 +3,8 @@ plugins {
     `publishing-conventions`
 }
 
-group = libs.versions.kmp.sse.group.get()
-version = libs.versions.kmp.ktor.stream.provider.get()
+group = group()
+version = artifactId()
 
 kotlin {
     jvm()

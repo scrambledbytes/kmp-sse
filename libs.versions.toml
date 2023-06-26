@@ -10,7 +10,7 @@ kotlinx-coroutines = "1.6.4"
 ktor-version = "2.3.1"
 logback-version = "1.2.11"
 
-kmp-sse-group = "cc.scrambledbytes.sse"
+# consumption configuration
 kmp-sse-event-source = "0.0.1-SNAPSHOT"
 kmp-ktor-stream-provider = "0.0.1-SNAPSHOT"
 

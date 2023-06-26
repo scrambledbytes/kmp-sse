@@ -4,11 +4,18 @@ plugins {
 }
 
 publishing {
+
+
     publications.withType<MavenPublication> {
         repositories {
+
+
             maven {
+
+
 //                url = uri("https://s01.oss.sonatype.org/service/local/")
                 name = "sonatype"
+
                 url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
                 credentials {
                     username = properties["sonatype.user"].toString()
@@ -48,4 +55,3 @@ signing {
     // credentials in GRADLE_USER_HOME/gradle.properties
     sign(publishing.publications)
 }
-
