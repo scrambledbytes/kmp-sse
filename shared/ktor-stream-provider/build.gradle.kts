@@ -1,5 +1,6 @@
 plugins {
     id(libs.plugins.kotlin.multiplatform)
+    `publishing-conventions`
 }
 
 group = libs.versions.kmp.sse.group.get()
@@ -11,7 +12,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(project(":shared:sse-event-source"))
+                api(libs.sse.event.source)
                 api(libs.ktor.client.core)
             }
         }

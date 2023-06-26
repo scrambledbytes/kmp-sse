@@ -36,6 +36,9 @@ ktor-server-tests-jvm = { module = "io.ktor:ktor-server-tests-jvm", version.ref 
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback-version" }
 cash-turbine = { module = "app.cash.turbine:turbine", version = "0.12.3" }
 
+sse-event-source = { module = "cc.scrambledbytes.sse:sse-event-source", version.ref = "kmp-sse-event-source"}
+sse-ktor-stream-provider = { module = "cc.scrambledbytes.sse:ktor-stream-provider", version.ref = "kmp-ktor-stream-provider"}
+
 #                                       Bundles
 ################################################################################################
 [bundles]
