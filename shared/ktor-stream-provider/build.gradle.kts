@@ -12,7 +12,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.sse.event.source)
+                api(project(":shared:sse-event-source"))
                 api(libs.ktor.client.core)
             }
         }
