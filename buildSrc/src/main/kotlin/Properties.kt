@@ -12,8 +12,8 @@ fun Project.publishRepo(): String =
         "https://s01.oss.sonatype.org/content/repositories/snapshots/"
 
 
-fun Project.group():String =
-    strProp("group")
+fun Project.groupId():String =
+    strProp("groupId")
 
 fun Project.artifactId():String =
     artifactId(strProp("${project.name}.artifactId"))

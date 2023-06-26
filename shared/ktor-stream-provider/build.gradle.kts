@@ -3,7 +3,7 @@ plugins {
     `publishing-conventions`
 }
 
-group = group()
+group = groupId()
 version = artifactId()
 
 kotlin {
