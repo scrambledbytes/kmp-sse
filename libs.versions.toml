@@ -7,7 +7,7 @@ jvm-target = "11"
 kotlin = "1.8.10"
 kotlin-api = "1.8"
 kotlinx-coroutines = "1.6.4"
-ktor-version = "2.3.0"
+ktor-version = "2.3.1"
 logback-version = "1.2.11"
 
 kmp-sse-group = "cc.scrambledbytes.sse"
@@ -56,4 +56,3 @@ vcu = "nl.littlerobots.version-catalog-update:0.7.0"
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ktor-io = { id = "io.ktor.plugin", version.ref = "ktor-version" }
-
