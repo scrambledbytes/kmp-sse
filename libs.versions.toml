@@ -34,7 +34,7 @@ ktor-server-core-jvm = { module = "io.ktor:ktor-server-core-jvm", version.ref = 
 ktor-server-netty-jvm = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor-version" }
 ktor-server-tests-jvm = { module = "io.ktor:ktor-server-tests-jvm", version.ref = "ktor-version" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback-version" }
-cash-turbine = { module = "app.cash.turbine:turbine", version = "0.12.3" }
+cash-turbine = { module = "app.cash.turbine:turbine", version = "1.0.0" }
 
 sse-event-source = { module = "cc.scrambledbytes.sse:sse-event-source", version.ref = "kmp-sse-event-source"}
 sse-ktor-stream-provider = { module = "cc.scrambledbytes.sse:ktor-stream-provider", version.ref = "kmp-ktor-stream-provider"}
