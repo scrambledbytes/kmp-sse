@@ -43,11 +43,11 @@ class FakeSseLineStreamProvider : SseLineStream.Provider {
         createVisitedWithUrl = url
         createVisitedWithLastEventId = lastEventId
         createVisitedWithCredentials = withCredentials
-
-        return SseLineStream(
+        val stream =  SseLineStream(
             onClose = this::onClose,
             onConnect = this::onExecute,
         )
+        return stream
     }
 
     override fun parse(

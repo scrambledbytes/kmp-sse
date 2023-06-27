@@ -1,8 +1,8 @@
 package cc.scrambledbytes.sse
 
-import junit.framework.TestCase.assertFalse
-import junit.framework.TestCase.assertTrue
 import org.junit.Test
+import kotlin.test.assertTrue
+import kotlin.test.assertFalse
 
 class SseLineStreamConnectionStateTests {
     @Test
@@ -14,19 +14,19 @@ class SseLineStreamConnectionStateTests {
     @Test
     fun testIsFailedWhen204() {
         val state = SseLineStream.ConnectionState(204, "", false)
-        assertTrue(state.isAborted)
+        assertTrue(state.isFailed )
     }
 
     @Test
     fun testIsFailedWhen401() {
         val state = SseLineStream.ConnectionState(401, "", false)
-        assertTrue(state.isAborted)
+        assertTrue(state.isFailed)
     }
 
     @Test
     fun testIsFailedWhen403() {
         val state = SseLineStream.ConnectionState(403, "", false)
-        assertTrue(state.isAborted)
+        assertTrue(state.isFailed)
     }
 
     @Test

@@ -7,8 +7,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 internal suspend fun SseEventSourceImpl.handleConnect() {
-    val stream = createStream()
-        ?: return
+    val stream = createStream() ?: return
 
     lineScope.launch {
         launch {
@@ -52,5 +51,3 @@ private suspend fun SseEventSourceImpl.createStream(): SseLineStream? =
         )
         null
     }
-
-
