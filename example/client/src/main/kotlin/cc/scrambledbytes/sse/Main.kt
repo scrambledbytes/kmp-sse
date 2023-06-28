@@ -4,6 +4,7 @@ import io.ktor.client.*
 
 suspend fun main() {
     val http = HttpClient()
+
     val provider: SseLineStream.Provider = KtorSseEventStreamProvider(http)
 
     val client = SseEventSource(

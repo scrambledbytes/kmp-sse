@@ -103,6 +103,7 @@ class SseLineStream(
             url: SseUrl,
             lastEventId: String?,
             withCredentials: Boolean = false,
+            extraHeaders: Map<String, String> = emptyMap(),
         ): SseLineStream
 
         fun parse(url: String): SseUrl

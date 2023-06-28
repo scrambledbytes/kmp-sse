@@ -100,7 +100,7 @@ internal class SseEventSourceImpl(
 
     override val url: SseUrl = provider.parse(urlString)
     override suspend fun open() {
-        require(!_state.value.isFailed)
+        require(!_state.value.isFailed) {"Attempted to open a failed EventSource"}
         schedule(Intent.Connect)
     }
 
@@ -109,6 +109,7 @@ internal class SseEventSourceImpl(
     internal val intentJob: Job = intentScope.launch {
         channel.consumeAsFlow()
             .collect { handleIntent(it) }
+            // TODO error handling
     }
 
     internal suspend fun schedule(intent: Intent) {

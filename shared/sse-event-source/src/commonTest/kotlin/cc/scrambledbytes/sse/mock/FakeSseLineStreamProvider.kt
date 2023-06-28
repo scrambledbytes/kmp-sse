@@ -37,7 +37,8 @@ class FakeSseLineStreamProvider : SseLineStream.Provider {
     override suspend fun create(
         url: SseUrl,
         lastEventId: String?,
-        withCredentials: Boolean
+        withCredentials: Boolean,
+        extraHeaders: Map<String, String>
     ): SseLineStream {
         createVisited = true
         createVisitedWithUrl = url

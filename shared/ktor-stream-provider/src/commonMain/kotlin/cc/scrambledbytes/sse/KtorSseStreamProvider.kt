@@ -28,6 +28,7 @@ class KtorSseEventStreamProvider(
         url: SseUrl,
         lastEventId: String?,
         withCredentials: Boolean,
+        extraHeaders: Map<String, String>
     ): SseLineStream {
         var job: Job? = null
 
@@ -36,6 +37,10 @@ class KtorSseEventStreamProvider(
                 set(CacheControl, NO_STORE)
                 set(Accept, EventStream.toString())
                 lastEventId?.let { set(LAST_EVENT_ID, it) }
+
+                extraHeaders.forEach { (name, value) ->
+                    set(name, value)
+                }
             }
 
             setAttributes {
