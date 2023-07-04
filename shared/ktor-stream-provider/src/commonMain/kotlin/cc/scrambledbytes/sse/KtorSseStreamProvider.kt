@@ -67,17 +67,9 @@ class KtorSseEventStreamProvider(
 
                     val channel: ByteReadChannel = response.body()
                     while (!channel.isClosedForRead) {
-                        var newBuffer: String? = null
-
-                        channel.readAvailable {
-                            newBuffer = it.decodeString()
-                        }
-
-                        newBuffer?.let {
-                            val lines = it.split("\n")
-                            for (line in lines) {
-                                onLine(SseLine(line))
-                            }
+                        val line = channel.readUTF8Line()
+                        if (!line.isNullOrBlank()) {
+                            onLine(SseLine(line))
                         }
                     }
                 }
