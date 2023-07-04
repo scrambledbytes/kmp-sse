@@ -19,6 +19,5 @@ tasks.withType<JavaCompile>().configureEach {
 tasks.withType<KotlinJvmCompile>().configureEach {
     kotlinOptions {
         jvmTarget = catalog.version("jvm-target")
-
     }
 }

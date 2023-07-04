@@ -62,7 +62,7 @@ private fun SseEventSourceImpl.handleData(
 private fun SseEventSourceImpl.handleId(
     fieldValue: String
 ) {
-    if (Character.MIN_VALUE in fieldValue)
+    if (Char.MIN_VALUE in fieldValue)
         return
 
     buffer = buffer.copy(lastEventId = fieldValue)
@@ -82,4 +82,3 @@ private fun SseEventSourceImpl.handleRetry(
 
     reconnectionTime = newReconnectionTime.milliseconds
 }
-

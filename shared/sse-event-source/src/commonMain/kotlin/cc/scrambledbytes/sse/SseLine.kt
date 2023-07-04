@@ -1,5 +1,7 @@
 package cc.scrambledbytes.sse
 
+import kotlin.jvm.JvmInline
+
 @JvmInline
 value class SseLine(
     val value: String

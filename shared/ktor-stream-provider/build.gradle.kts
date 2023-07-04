@@ -8,6 +8,8 @@ version = artifactId()
 
 kotlin {
     jvm()
+    iosTargets()
+
 
     sourceSets {
         val commonMain by getting {
@@ -21,7 +23,5 @@ kotlin {
                 implementation(kotlin("test"))
             }
         }
-
-        val jvmMain by getting
     }
 }

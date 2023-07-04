@@ -7,7 +7,7 @@ group = groupId()
 version = artifactId()
 
 kotlin {
-    jvm()
+    allSupportedTargets()
 
     sourceSets {
         val commonMain by getting {

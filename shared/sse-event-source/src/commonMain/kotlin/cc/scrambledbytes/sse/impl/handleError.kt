@@ -4,7 +4,7 @@ import cc.scrambledbytes.sse.ReadyState.CLOSED
 import cc.scrambledbytes.sse.SseEventSourceImpl
 import cc.scrambledbytes.sse.SseEventSourceImpl.Intent.ConnectDelayed
 import cc.scrambledbytes.sse.SseLineStream
-import java.util.concurrent.CancellationException
+import kotlin.coroutines.cancellation.CancellationException
 
 internal suspend fun SseEventSourceImpl.handleError(
     newSource: SseLineStream,
