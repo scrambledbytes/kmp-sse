@@ -42,7 +42,7 @@ private suspend fun SseEventSourceImpl.connectStream(
 
 private suspend fun SseEventSourceImpl.createStream(): SseLineStream? =
     try {
-        provider.create(url, lastEventId, withCredentials)
+        provider.create(url, lastEventId, withCredentials, extraHeaders)
     } catch (e: Exception) {
         _state.value = _state.value.copy(
             ready = CLOSED,

@@ -29,6 +29,7 @@ internal const val LF = '\u000A' // U+000A LINE FEED (LF)
 interface SseEventSource {
     val url: SseUrl
     val withCredentials: Boolean
+    val extraHeaders: Map<String,String>
 
     suspend fun open()
 
@@ -65,6 +66,7 @@ enum class ReadyState(val value: UShort) {
 fun SseEventSource(
     url: String,
     streamProvider: SseLineStream.Provider,
+    extraHeaders: Map<String, String> = emptyMap(),
     context: CoroutineContext = Job(),
     withCredentials: Boolean = false,
     delayProvider: (Int) -> Duration? = { 10.seconds },
@@ -75,6 +77,7 @@ fun SseEventSource(
     SseEventSourceImpl(
         urlString = url,
         provider = streamProvider,
+        extraHeaders = extraHeaders,
         context = context,
         withCredentials = withCredentials,
         delayProvider = delayProvider,
@@ -88,6 +91,7 @@ internal class SseEventSourceImpl(
     // needs to be different due to name clash in JS
     urlString: String,
     internal val provider: SseLineStream.Provider,
+    override val extraHeaders: Map<String,String>,
     context: CoroutineContext,
     override val withCredentials: Boolean,
     internal var delayProvider: (Int) -> Duration?,
