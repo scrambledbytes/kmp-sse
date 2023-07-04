@@ -25,8 +25,8 @@
             <option value="$PROJECT_DIR$/example/client" />
             <option value="$PROJECT_DIR$/example/server" />
             <option value="$PROJECT_DIR$/shared" />
-            <option value="$PROJECT_DIR$/shared/ktor-stream-provider" />
             <option value="$PROJECT_DIR$/shared/sse-event-source" />
+            <option value="$PROJECT_DIR$/shared/sse-ktor-stream-provider" />
           </set>
         </option>
       </GradleProjectSettings>

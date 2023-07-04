@@ -18,7 +18,7 @@ dependencyResolutionManagement {
 }
 
 include(":shared:sse-event-source")
-include(":shared:ktor-stream-provider")
+include(":shared:sse-ktor-stream-provider")
 
 include(":example:server")
 include(":example:client")

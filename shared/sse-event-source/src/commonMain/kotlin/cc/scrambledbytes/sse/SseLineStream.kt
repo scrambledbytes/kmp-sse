@@ -46,7 +46,6 @@ class SseLineStream(
     private suspend fun onConnected(
         newState: ConnectionState
     ) {
-        print("OnConnected")
         mutex.withLock {
             require(state.value == null) { "Already connected, cannot call `onConnected` twice." }
             state.value = newState
