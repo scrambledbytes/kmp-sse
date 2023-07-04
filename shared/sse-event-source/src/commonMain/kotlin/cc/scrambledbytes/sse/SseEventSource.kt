@@ -69,6 +69,7 @@ fun SseEventSource(
     extraHeaders: Map<String, String> = emptyMap(),
     context: CoroutineContext = Job(),
     withCredentials: Boolean = false,
+    ignoreEmptyData: Boolean = false, //
     delayProvider: (Int) -> Duration? = { 10.seconds },
     isStreamFailed: (SseLineStream.ConnectionState) -> Boolean = { false },
     isFatalError: (Throwable) -> Boolean = { false },
@@ -80,6 +81,7 @@ fun SseEventSource(
         extraHeaders = extraHeaders,
         context = context,
         withCredentials = withCredentials,
+        ignoreEmptyData = ignoreEmptyData, // allow events with empty data
         delayProvider = delayProvider,
         isStreamFailed = isStreamFailed,
         isFatalError = isFatalError,
@@ -94,6 +96,7 @@ internal class SseEventSourceImpl(
     override val extraHeaders: Map<String,String>,
     context: CoroutineContext,
     override val withCredentials: Boolean,
+    internal val ignoreEmptyData:Boolean,
     internal var delayProvider: (Int) -> Duration?,
     internal val isStreamFailed: (SseLineStream.ConnectionState) -> Boolean,
     internal val isFatalError: (Throwable) -> Boolean,

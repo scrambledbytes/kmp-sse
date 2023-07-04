@@ -11,8 +11,8 @@ ktor-version = "2.3.1"
 logback-version = "1.2.11"
 
 # consumption configuration
-kmp-sse-event-source = "0.1.0-SNAPSHOT"
-kmp-ktor-stream-provider = "0.1.0-SNAPSHOT"
+kmp-sse-event-source = "0.2.1-SNAPSHOT"
+kmp-ktor-stream-provider = "0.2.1-SNAPSHOT"
 
 # iOS
 # JS

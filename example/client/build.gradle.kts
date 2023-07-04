@@ -4,6 +4,7 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.sse.ktor.stream.provider)
+    //implementation(libs.sse.ktor.stream.provider)
+    implementation(project(":shared:sse-ktor-stream-provider"))
     implementation(libs.ktor.client.apache5)
 }

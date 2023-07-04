@@ -41,6 +41,7 @@ private fun SseEventSourceImpl.processField(
 private fun SseEventSourceImpl.handleEvent(
     fieldValue: String
 ) {
+
     buffer = buffer.copy(eventType = fieldValue)
 }
 

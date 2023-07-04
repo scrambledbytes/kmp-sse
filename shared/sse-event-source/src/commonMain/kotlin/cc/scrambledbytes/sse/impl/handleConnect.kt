@@ -4,6 +4,7 @@ import cc.scrambledbytes.sse.ReadyState.CLOSED
 import cc.scrambledbytes.sse.SseEventSourceImpl
 import cc.scrambledbytes.sse.SseLineStream
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 internal suspend fun SseEventSourceImpl.handleConnect() {

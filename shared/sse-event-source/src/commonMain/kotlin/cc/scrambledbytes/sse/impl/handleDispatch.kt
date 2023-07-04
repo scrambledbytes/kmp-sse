@@ -8,7 +8,7 @@ internal suspend fun SseEventSourceImpl.handleDispatch() {
     lastEventId = buffer.lastEventId
 
     // 2 If the data buffer is an empty string, set the data buffer and the event type buffer to the empty string and return.
-    if (buffer.isEmpty) {
+    if (buffer.isEmpty && ignoreEmptyData) {
         resetBuffer()
         return
     }
