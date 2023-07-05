@@ -57,6 +57,8 @@ private suspend fun SseEventSourceImpl.handleOpen(
     _state.value = _state.value.copy(
         ready = OPEN,
         statusCode = connectionState.statusCode,
+        isFailed = false,
+        throwable = null
     )
 
     connectionAttempt = 0

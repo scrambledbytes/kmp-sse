@@ -9,6 +9,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
@@ -43,7 +44,7 @@ interface SseEventSource {
 
     val events: Flow<SseEvent>
 
-    val state: Flow<State>
+    val state: StateFlow<State>
 
     data class State(
         val ready: ReadyState = CONNECTING,
@@ -163,7 +164,7 @@ internal class SseEventSourceImpl(
 
 
     internal val _state = MutableStateFlow(SseEventSource.State())
-    override val state: Flow<SseEventSource.State>
+    override val state: StateFlow<SseEventSource.State>
         get() = _state
 
     internal var lastEventId: String? = null//  This must initially be the empty string.
