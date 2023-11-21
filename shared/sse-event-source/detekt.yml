@@ -1,0 +1,20 @@
+config:
+  validation: true
+  warningsAsErrors: false
+  excludes: ''
+
+comments:
+  CommentOverPrivateFunction:
+      active: false
+
+complexity:
+  LongParameterList:
+    ignoreDefaultParameters: true
+
+style:
+  BracesOnWhenStatements:
+    active: false
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: false

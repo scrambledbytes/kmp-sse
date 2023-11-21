@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="sse-event-source-jvm-0.2.5">
+    <output-path>$PROJECT_DIR$/shared/sse-event-source/build/libs</output-path>
+    <root id="archive" name="sse-event-source-jvm-0.2.5.jar">
+      <element id="module-output" name="kmp-sse.shared.sse-event-source.jvmMain" />
+    </root>
+  </artifact>
+</component>

@@ -1,0 +1,63 @@
+#
+#                                      Versions
+#################################################################################################
+[versions]
+# shared
+jvm-target = "11"
+kotlin = "1.9.0"
+kotlin-api = "1.9"
+kotlinx-coroutines = "1.7.3"
+ktor-version = "2.3.3"
+logback-version = "1.4.11"
+nexus-publish = "1.3.0"
+
+# consumption configuration
+kmp-sse-event-source = "0.2.4-SNAPSHOT"
+kmp-ktor-stream-provider = "0.2.4-SNAPSHOT"
+
+# iOS
+# JS
+
+#
+#                                   Libraries
+#################################################################################################
+[libraries]
+# shared
+kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+nexus-publish = { module = "io.github.gradle-nexus:publish-plugin", version.ref = "nexus-publish" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
+
+
+junit = "junit:junit:4.13.2"
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor-version" }
+ktor-client-apache5 = { module = "io.ktor:ktor-client-apache5", version.ref = "ktor-version" }
+ktor-server-core-jvm = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor-version" }
+ktor-server-netty-jvm = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor-version" }
+ktor-server-tests-jvm = { module = "io.ktor:ktor-server-tests-jvm", version.ref = "ktor-version" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback-version" }
+cash-turbine = { module = "app.cash.turbine:turbine", version = "1.0.0" }
+
+
+sse-event-source = { module = "cc.scrambledbytes.sse:sse-event-source", version.ref = "kmp-sse-event-source" }
+sse-ktor-stream-provider = { module = "cc.scrambledbytes.sse:sse-ktor-stream-provider", version.ref = "kmp-ktor-stream-provider" }
+
+#                                       Bundles
+################################################################################################
+[bundles]
+
+#
+#                                       Plugins
+################################################################################################
+[plugins]
+#   build
+# updating version catalog https://github.com/littlerobots/version-catalog-update-plugin
+manes = { id = "com.github.ben-manes.versions", version = "0.44.0" }
+vcu = { id = "nl.littlerobots.version-catalog-update", version = "0.7.0" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version = "1.23.1" }
+nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexus-publish" }
+
+# shared
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+ktor-io = { id = "io.ktor.plugin", version.ref = "ktor-version" }
