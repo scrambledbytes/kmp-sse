@@ -72,8 +72,9 @@ Apache 2.0
 
 
 # Todo
+* fix kmp targets
 * github actions
 * more tests
 * static code analysis
-
 * add providers
+* documentation
