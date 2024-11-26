@@ -1,13 +1,14 @@
 package cc.scrambledbytes.sse.impl
 
 import cc.scrambledbytes.sse.mock.FakeSseLineStreamProvider
-import org.junit.Before
-import org.junit.Test
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+
 
 class HandleProcessLineTests {
     lateinit var provider: FakeSseLineStreamProvider
 
-    @Before
+    @BeforeTest
     fun setup() {
         provider = FakeSseLineStreamProvider()
     }

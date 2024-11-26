@@ -1,8 +1,9 @@
 package cc.scrambledbytes.sse
 
 import cc.scrambledbytes.sse.mock.FakeSseLineStreamProvider
-import org.junit.Before
-import org.junit.Test
+
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 
@@ -18,7 +19,7 @@ abstract class AbstractSseLineStreamProviderTests(
 ) {
     lateinit var source: SseEventSource
 
-    @Before
+    @BeforeTest
     fun setup() {
         source = SseEventSource(url, provider)
     }

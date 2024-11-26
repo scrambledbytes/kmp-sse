@@ -19,13 +19,18 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
+                implementation(libs.junit)
                 implementation(kotlin("test"))
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.cash.turbine)
             }
         }
         val jvmMain by getting
-        val jvmTest by getting
+        val jvmTest by getting {
+            dependencies {
+                implementation(libs.junit)
+            }
+        }
     }
 }
 

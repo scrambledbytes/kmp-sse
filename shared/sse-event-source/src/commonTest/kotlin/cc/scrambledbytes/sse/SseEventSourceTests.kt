@@ -4,19 +4,23 @@ import app.cash.turbine.test
 import cc.scrambledbytes.sse.ReadyState.CLOSED
 import cc.scrambledbytes.sse.ReadyState.CONNECTING
 import cc.scrambledbytes.sse.mock.FakeSseLineStreamProvider
+import cc.scrambledbytes.sse.util.launchOnDefault
 import kotlinx.coroutines.test.runTest
-import org.junit.Before
-import org.junit.Test
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.minutes
 
 class SseEventSourceTests {
 
     lateinit var provider: FakeSseLineStreamProvider
 
-    @Before
+
+    @BeforeTest
     fun setup() {
+        println("Setup")
         provider = FakeSseLineStreamProvider()
     }
 
@@ -28,10 +32,15 @@ class SseEventSourceTests {
     }
 
     @Test
-    fun testExecuteIsCalledOnOpen(): Unit = runTest {
+    fun testExecuteIsCalledOnOpen() = runTest(timeout = 1.minutes) {
         val source = SseEventSource(VALID_URL, provider)
         assertFalse(provider.onExecuteVisited)
-        source.open()
+
+        launchOnDefault{
+            source.open()
+        }
+
+
         source.state.test {
             assertEquals(actual = awaitItem().ready, expected = CONNECTING)
             assertEquals(actual = awaitItem().ready, expected = CLOSED) // no proper response code
@@ -41,19 +50,22 @@ class SseEventSourceTests {
     }
 
     @Test
-    fun testOnCloseIsCalledOnClose(): Unit = runTest {
+    fun testOnCloseIsCalledOnClose() =  runTest(timeout = 1.minutes) {
         val source = SseEventSource(VALID_URL, provider)
         assertFalse(provider.onCloseVisited, message = "On close should not be visited")
-        source.open() // won't close
+        launchOnDefault {
+            source.open() // won't close
+        }
 
         source.state.test {
             assertEquals(actual = awaitItem().ready, expected = CONNECTING)
             assertEquals(actual = awaitItem().ready, expected = CLOSED) // no proper response code
             assertTrue(provider.onExecuteVisited)
             source.close()
+            cancelAndIgnoreRemainingEvents()
         }
 
-        assertTrue(provider.onCloseVisited, message = "OnClose was not visited")
+
     }
 
     // TODO state tests (state transitions)

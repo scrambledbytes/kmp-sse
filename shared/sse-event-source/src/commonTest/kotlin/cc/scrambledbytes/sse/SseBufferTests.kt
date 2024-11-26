@@ -1,8 +1,8 @@
 package cc.scrambledbytes.sse
 
-import junit.framework.TestCase.assertFalse
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class SseBufferTests {

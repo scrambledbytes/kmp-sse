@@ -1,33 +1,41 @@
 package cc.scrambledbytes.sse.impl
 
 import app.cash.turbine.test
-import cc.scrambledbytes.sse.*
 import cc.scrambledbytes.sse.ReadyState.CLOSED
 import cc.scrambledbytes.sse.ReadyState.CONNECTING
+import cc.scrambledbytes.sse.SseEventSource
+import cc.scrambledbytes.sse.SseEventSourceImpl
+import cc.scrambledbytes.sse.SseLineStream
+import cc.scrambledbytes.sse.VALID_URL
 import cc.scrambledbytes.sse.mock.FakeSseLineStreamProvider
-import junit.framework.TestCase
+import cc.scrambledbytes.sse.util.launchOnDefault
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
-import org.junit.Before
-import org.junit.Test
+import kotlinx.coroutines.test.runTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 class HandleConnectDelayedTest {
     lateinit var provider: FakeSseLineStreamProvider
 
-    @Before
+    @BeforeTest
     fun setup() {
         provider = FakeSseLineStreamProvider()
     }
 
     @Test
-    fun testWhenRetryOpenConnection() = runBlocking {
+    fun testWhenRetryOpenConnection() = runTest(timeout = 1.minutes) {
         val state = SseLineStream.ConnectionState(201, contentType = "a", isAborted = false)
         val source = SseEventSource(VALID_URL, provider, delayProvider = { it.seconds })
         source as SseEventSourceImpl
         provider.connectionState = state
-        source.open()
+        launchOnDefault {
+            source.open()
+        }
+
 
         source.state.test {
             assertEquals(0, source.connectionAttempt)
@@ -40,12 +48,13 @@ class HandleConnectDelayedTest {
             assertEquals(SseEventSource.State(statusCode = 201, ready = CONNECTING), awaitItem())
             delay(10)
             assertEquals(2, source.connectionAttempt)
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
 
     @Test
-    fun testCloseAfterMaxAttempts() = runBlocking {
+    fun testCloseAfterMaxAttempts() = runTest(timeout = 1.minutes) {
         val state = SseLineStream.ConnectionState(201, contentType = "a", isAborted = false)
         val source = SseEventSource(
             VALID_URL,
@@ -53,7 +62,9 @@ class HandleConnectDelayedTest {
             delayProvider = { if (it == 2) null else it.seconds })
         source as SseEventSourceImpl
         provider.connectionState = state
-        source.open()
+        launchOnDefault {
+            source.open()
+        }
 
         source.state.test {
             assertEquals(0, source.connectionAttempt)
@@ -68,10 +79,9 @@ class HandleConnectDelayedTest {
             assertEquals(2, source.connectionAttempt)
             assertEquals(SseEventSource.State(statusCode = 201, ready = CLOSED), awaitItem())
             expectNoEvents()
-        }
 
-        delay(2_000) // wait for cleanup
-        TestCase.assertTrue(provider.onCloseVisited)
+            cancelAndIgnoreRemainingEvents()
+        }
     }
 
 

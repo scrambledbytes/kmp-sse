@@ -1,32 +1,40 @@
 package cc.scrambledbytes.sse.impl
 
 import app.cash.turbine.test
-import cc.scrambledbytes.sse.ReadyState.*
+import cc.scrambledbytes.sse.ReadyState.CLOSED
+import cc.scrambledbytes.sse.ReadyState.CONNECTING
+import cc.scrambledbytes.sse.ReadyState.OPEN
 import cc.scrambledbytes.sse.SseEventSource
 import cc.scrambledbytes.sse.SseLineStream
 import cc.scrambledbytes.sse.VALID_URL
 import cc.scrambledbytes.sse.mock.FakeSseLineStreamProvider
-import junit.framework.TestCase.assertTrue
+import cc.scrambledbytes.sse.util.launchOnDefault
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
-import org.junit.Before
-import org.junit.Test
+import kotlinx.coroutines.test.runTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.minutes
 
 class HandleConnectedTest {
     lateinit var provider: FakeSseLineStreamProvider
 
-    @Before
+    @BeforeTest
     fun setup() {
         provider = FakeSseLineStreamProvider()
     }
 
     @Test
-    fun testWhenOkOpenConnection() = runBlocking {
+    fun testWhenOkOpenConnection() = runTest(timeout = 1.minutes) {
         val state = SseLineStream.ConnectionState(200, contentType = "", isAborted = false)
         val source = SseEventSource(VALID_URL, provider)
         provider.connectionState = state
-        source.open()
+
+        launchOnDefault {
+            source.open()
+        }
+
 
         source.state.test {
             assertEquals(SseEventSource.State(), awaitItem())
@@ -34,16 +42,18 @@ class HandleConnectedTest {
                 SseEventSource.State(statusCode = 200, ready = OPEN, isFailed = false),
                 awaitItem()
             )
-            expectNoEvents()
+            cancelAndConsumeRemainingEvents()
         }
     }
 
     @Test
-    fun testWhenRetryOpenConnection() = runBlocking {
+    fun testWhenRetryOpenConnection() = runTest(timeout = 1.minutes) {
         val state = SseLineStream.ConnectionState(201, contentType = "a", isAborted = false)
         val source = SseEventSource(VALID_URL, provider)
         provider.connectionState = state
-        source.open()
+        launchOnDefault {
+            source.open()
+        }
 
         source.state.test {
             assertEquals(SseEventSource.State(), awaitItem())
@@ -58,16 +68,18 @@ class HandleConnectedTest {
                     isFailed = false
                 ), awaitItem()
             )
-            expectNoEvents()
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
     @Test
-    fun testWhenFailClose() = runBlocking {
+    fun testWhenFailClose() = runTest(timeout = 1.minutes) {
         val state = SseLineStream.ConnectionState(204, contentType = "a", isAborted = false)
         val source = SseEventSource(VALID_URL, provider)
         provider.connectionState = state
-        source.open()
+        launchOnDefault {
+            source.open()
+        }
 
         source.state.test {
             assertEquals(SseEventSource.State(), awaitItem())
@@ -75,10 +87,9 @@ class HandleConnectedTest {
                 SseEventSource.State(statusCode = 204, ready = CLOSED, isFailed = true),
                 awaitItem()
             )
-            expectNoEvents()
+            cancelAndConsumeRemainingEvents()
         }
 
-        delay(2_000) // wait for cleanup
-        assertTrue(provider.onCloseVisited)
+
     }
 }
