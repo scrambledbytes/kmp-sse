@@ -4,6 +4,8 @@ Extensible Kotlin Multiplatform implementation of Server Sent Events(Sse)
 
 # Overview
 
+* For Ktor > 3.0, consider using the officially supported SSE plugin ([client](https://ktor.io/docs/client-server-sent-events.html), [server](https://ktor.io/docs/server-server-sent-events.html))
+
 
 # Documentation
 ## Setup:

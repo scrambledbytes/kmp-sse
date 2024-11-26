@@ -246,9 +246,9 @@ internal class SseEventSourceImpl(
     }
 
     internal sealed interface Intent {
-        object Connect : Intent
-        object ConnectDelayed : Intent
-        object Dispatch : Intent
+        data object Connect : Intent
+        data object ConnectDelayed : Intent
+        data object Dispatch : Intent
         data class ProcessLine(val line: SseLine) : Intent
 
         data class HandleError(

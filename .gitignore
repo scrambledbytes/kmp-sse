@@ -23,7 +23,9 @@
 hs_err_pid*
 replay_pid*
 
-
+.kotlin/**
+.idea/caches
+.idea/**
 # idea
 workspace.xml
 

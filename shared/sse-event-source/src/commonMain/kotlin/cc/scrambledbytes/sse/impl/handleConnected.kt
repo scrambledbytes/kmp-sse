@@ -51,7 +51,7 @@ private suspend fun SseEventSourceImpl.handleRetryConnection(
     schedule(ConnectDelayed)
 }
 
-private suspend fun SseEventSourceImpl.handleOpen(
+private fun SseEventSourceImpl.handleOpen(
     connectionState: SseLineStream.ConnectionState,
     lines: Flow<SseLine>
 ) {
