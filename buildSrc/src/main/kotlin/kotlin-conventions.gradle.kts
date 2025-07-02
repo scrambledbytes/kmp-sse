@@ -1,12 +1,15 @@
-import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
+
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion.Companion.fromVersion
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 // kotlin compilation
-tasks.withType<KotlinCompile<*>>().configureEach {
-    kotlinOptions {
+tasks.withType<KotlinCompilationTask<*>>().configureEach {
+    compilerOptions {
         allWarningsAsErrors = false
-        languageVersion = catalog.version("kotlin-api")
-        apiVersion = catalog.version("kotlin-api")
+        languageVersion.set(fromVersion(catalog.version("kotlin-api")))
+        apiVersion.set(fromVersion(catalog.version("kotlin-api")))
     }
 }
 
@@ -16,7 +19,7 @@ tasks.withType<JavaCompile>().configureEach {
 
 // jvm compilation
 tasks.withType<KotlinJvmCompile>().configureEach {
-    kotlinOptions {
-        jvmTarget = catalog.version("jvm-target")
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
