@@ -16,8 +16,14 @@ private fun KotlinMultiplatformExtension.nativeTargets() {
 }
 
 fun KotlinMultiplatformExtension.iosTargets() {
-    ios()
+    iosX64()
+    iosArm64()
     iosSimulatorArm64()
-    watchos()
-    tvos()
+    watchosArm32()
+    watchosArm64()
+    watchosSimulatorArm64()
+    watchosX64()
+    tvosArm64()
+    tvosSimulatorArm64()
+    tvosX64()
 }
