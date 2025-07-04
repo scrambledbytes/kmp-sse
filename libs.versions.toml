@@ -7,13 +7,13 @@ jvm-target = "17"
 kotlin = "2.2.0"
 kotlin-api = "2.2"
 kotlinx-coroutines = "1.10.2"
-ktor-version = "3.2.0"
+ktor-version = "3.2.1"
 logback-version = "1.5.18"
 nexus-publish = "2.0.0"
 
 # consumption configuration
-kmp-sse-event-source = "0.4.0-SNAPSHOT"
-kmp-ktor-stream-provider = "0.4.0-SNAPSHOT"
+kmp-sse-event-source = "0.4.2-SNAPSHOT"
+kmp-ktor-stream-provider = "0.4.2-SNAPSHOT"
 
 # iOS
 # JS
